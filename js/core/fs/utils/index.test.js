@@ -1,11 +1,11 @@
 'use strict';
 
 const PathUtils = require('.');
+
 const path = new PathUtils({});
 
 describe('System path tests', () => {
   describe('isSystemPath tests', () => {
-
     /* test('isSystemPath should throw an error if path isn\'t a String', () => {
       expect(path.isSystemPath(null)).toTrow('path must be a String');
     }); */
@@ -22,6 +22,5 @@ describe('System path tests', () => {
     test('should transform /system/js/index.js => /js/index.js', () => {
       expect(path.extractSystemPath('/system/js/index.js')).toBe('/js/index.js');
     });
-
   });
 });

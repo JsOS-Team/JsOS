@@ -15,6 +15,7 @@
 'use strict';
 
 const u8view = require('u8-view');
+
 const OFFSET_ADDR = 0;
 const OFFSET_LEN = 8;
 const OFFSET_FLAGS = 12;
@@ -24,7 +25,7 @@ const VRING_DESC_F_NEXT = 1;
 const VRING_DESC_F_WRITE = 2;
 
 class DescriptorTable {
-  constructor (buffer, byteOffset, ringSize) {
+  constructor(buffer, byteOffset, ringSize) {
     this.mem = new Uint8Array(buffer, byteOffset, ringSize * SIZE);
     this.freeDescriptorHead = 0;
     this.descriptorsAvailable = ringSize;
@@ -38,11 +39,11 @@ class DescriptorTable {
     }
   }
 
-  static getDescriptorSizeBytes () {
+  static getDescriptorSizeBytes() {
     return SIZE;
   }
 
-  get (descriptorId) {
+  get(descriptorId) {
     const base = SIZE * descriptorId;
     const len = u8view.getUint32LE(this.mem, base + OFFSET_LEN);
     const flags = u8view.getUint16LE(this.mem, base + OFFSET_FLAGS);
@@ -55,11 +56,11 @@ class DescriptorTable {
     };
   }
 
-  getDescriptorBuffer (descriptorId) {
+  getDescriptorBuffer(descriptorId) {
     return this.descriptorsBuffers[descriptorId];
   }
 
-  setBuffer (descriptorId, buf, len, flags) {
+  setBuffer(descriptorId, buf, len, flags) {
     const base = SIZE * descriptorId;
     const addr = __SYSCALL.bufferAddress(buf);
 
@@ -69,13 +70,13 @@ class DescriptorTable {
     u8view.setUint16LE(this.mem, base + OFFSET_FLAGS, flags >>> 0);
   }
 
-  getNext (descriptorId) {
+  getNext(descriptorId) {
     const base = SIZE * descriptorId;
 
     return u8view.getUint16LE(this.mem, base + OFFSET_NEXT);
   }
 
-  setNext (descriptorId, next) {
+  setNext(descriptorId, next) {
     const base = SIZE * descriptorId;
 
     u8view.setUint16LE(this.mem, base + OFFSET_NEXT, next >>> 0);
@@ -89,7 +90,7 @@ class DescriptorTable {
    * @param isWriteOnly {bool} set writeOnly flag for each buffer
    * @param isWriteOnlyArray {array} optional array of writeOnly flags, one value for each buffer
    */
-  placeBuffers (buffers, lengths, isWriteOnly, isWriteOnlyArray) {
+  placeBuffers(buffers, lengths, isWriteOnly, isWriteOnlyArray) {
     const count = buffers.length;
 
     if (this.descriptorsAvailable < count) {
@@ -128,7 +129,7 @@ class DescriptorTable {
     return first;
   }
 
-  getBuffer (descriptorId) {
+  getBuffer(descriptorId) {
     let nextDescriptorId = descriptorId;
     const buffer = this.descriptorsBuffers[descriptorId];
 
@@ -149,7 +150,7 @@ class DescriptorTable {
     return buffer;
   }
 
-  printDebug () {
+  printDebug() {
     console.log('DESCRIPTOR TABLE:');
     this.descriptorsBuffers.forEach((buf, i) => console.log(`  ${i}: ${buf ? `<Uint8Array:${buf.length}>` : '-'}, next ${this.getNext(i)}`)); // eslint-disable-line max-len
   }

@@ -1,6 +1,7 @@
 'use strict';
 
 const PciDevice = require('../../../core/pci/pci-device');
+
 const { MACAddress, Interface } = runtime.net;
 const Buffer = require('buffer').Buffer;
 
@@ -9,14 +10,14 @@ const FULL_RX_BUFFER_SIZE = RX_BUFFER_SIZE + 1500;
 const TX_BUFFER_SIZE = 256 * 1024;
 
 class RTL8139 {
-  constructor () {
+  constructor() {
     this.ontransmit = this.ontransmit.bind(this);
     this.onIRQ = this.onIRQ.bind(this);
   }
-  static init (device) {
+  static init(device) {
     return new RTL8139().init(device);
   }
-  init (device) {
+  init(device) {
     // Initialize the PCI device
     this.irq = device.getIRQ();
     device.setPciCommandFlag(PciDevice.commandFlag.BusMaster);
@@ -107,7 +108,7 @@ class RTL8139 {
 
     runtime.net.interfaceAdd(this.intf);
   }
-  nextIter () {
+  nextIter() {
     this.iter++;
     if (this.iter >= 4) {
       this.iter = 0;
@@ -115,7 +116,7 @@ class RTL8139 {
 
     return this.iter;
   }
-  ontransmit (u8header, u8data) {
+  ontransmit(u8header, u8data) {
     const iter = this.nextIter();
     let size = u8header.length;
 
@@ -131,7 +132,7 @@ class RTL8139 {
     tsN.write32(this.txBuffers[iter].address);
     csN.write32(size & 0xFFF);
   }
-  onreceive () {
+  onreceive() {
     const status = this.rxBuffer.readUInt16LE(this.recvPointer);
 
     if (!(status & 0x1)) {
@@ -148,10 +149,10 @@ class RTL8139 {
     this.resetReceivePointer();
     if (this.recvPointer >= RX_BUFFER_SIZE) this.recvPointer = 0;
   }
-  resetReceivePointer () {
+  resetReceivePointer() {
     this.recvPointer = this.cbr.read16();
   }
-  onIRQ () {
+  onIRQ() {
     while (true) { // eslint-disable-line
       const isr = this.isr.read16();
 

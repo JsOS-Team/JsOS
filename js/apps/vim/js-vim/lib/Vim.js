@@ -25,9 +25,8 @@ let Doc = require('./Doc'),
 /** Initialize a Vim instance
  */
 Vim = function (obj) {
-
   // Instanciate view
-  this.view = new View({ 'vim': this });
+  this.view = new View({ vim: this });
 
   // Place for multiple docs
   this.docs = [];
@@ -43,17 +42,17 @@ Vim = function (obj) {
 
 
   // Giving this method a shot.
-  this.histories = { ':': []};
+  this.histories = { ':': [] };
   this.histories[':'].position = 0;
 
 
   this.marks = {};
 
   this.rc = {
-    'tabstop':       4,
-    'smartindent':   true,
-    'shiftwidth':    4,
-    'abbreviations': {},
+    tabstop: 4,
+    smartindent: true,
+    shiftwidth: 4,
+    abbreviations: {},
 
   };
 
@@ -106,7 +105,6 @@ Vim = function (obj) {
 
   // Default to command mode
   this.mode('command');
-
 };
 
 // Inherit Set, giving set, get, on, trigger
@@ -130,24 +128,21 @@ Vim.prototype.new = function () {
  * @param {Object} mode
  */
 Vim.prototype.addMode = function (name, mode) {
-
   const modeArr = [];
 
   for (const i in mode) {
     // TODO make it _().each
     if (mode.hasOwnProperty(i)) {
-
       // TODO let strings fall through for (command in mode) matching
       const reg = new RegExp(i.substring(1, i.length - 1));
 
       this.addCommand({
-        'mode':  name,
-        'match': reg,
-        'fn':    mode[i],
+        mode: name,
+        match: reg,
+        fn: mode[i],
       });
     }
   }
-
 };
 
 /** add a command to an existing mode
@@ -168,8 +163,8 @@ Vim.prototype.addCommand = function (obj) {
   if (!(obj.mode in this.modes)) this.modes[obj.mode] = [];
 
   return this.modes[obj.mode].push({
-    'command': obj.match,
-    'fn':      obj.fn,
+    command: obj.match,
+    fn: obj.fn,
   });
 };
 
@@ -183,7 +178,7 @@ Vim.prototype.mode = function (name) {
     this._mode = this.modes[name];
     this.modeName = name;
     this.trigger('change:mode', this._mode);
-    this.trigger('change', { 'type': 'mode' });
+    this.trigger('change', { type: 'mode' });
   }
 
   return this._mode;
@@ -223,7 +218,7 @@ Vim.prototype.register = function (k, v) {
     }
     if (_(val).isArray()) val = val.slice(0);
     // Send an empty string if it's an empty buffer.
-    return val ? val : '';
+    return val || '';
   }
 };
 
@@ -245,9 +240,9 @@ Vim.prototype.useRegister = function () {
 const _text = '';
 
 const abbreviationKeyMap = {
-  ' ':   1,
-  '\n':  1,
-  'esc': 1,
+  ' ': 1,
+  '\n': 1,
+  esc: 1,
 };
 
 /** Execute a given command by passing it through
@@ -302,12 +297,12 @@ Vim.prototype.exec = function (newCommand) {
 
       this.curDoc.remove([
         {
-          'line': pos.line,
-          'char': pos.char - curWord.length,
+          line: pos.line,
+          char: pos.char - curWord.length,
         }, {
-          'line': pos.line,
-          'char': pos.char,
-        }
+          line: pos.line,
+          char: pos.char,
+        },
       ]);
       this.curDoc.cursor.char(pos.char - curWord.length);
       this.curDoc.insert(newWord);
@@ -328,7 +323,8 @@ Vim.prototype.exec = function (newCommand) {
   // Hold mode
   var mode = this.mode();
 
-  let arg, regResult;
+  let arg,
+    regResult;
 
   // EX command helper
 
@@ -399,7 +395,6 @@ Vim.prototype.exec = function (newCommand) {
 
   // If we found one
   if (handlers.length) {
-
     // For recording macros, i.e. qq{commands}q, @q
     if (this.recording && this.execDepth === 1 && command.indexOf('q') !== 0) {
       this.recordingBuffer.push(command);
@@ -435,24 +430,23 @@ Vim.prototype.exec = function (newCommand) {
   if (this.execDepth === 0) {
     this.trigger('idle');
   }
-
 };
 
-function getCurWord (vim) {
+function getCurWord(vim) {
   const doc = vim.curDoc;
   const startPoint = doc.find(/(?:^|\W)(\w+)$/g, {
-    'backwards': true,
-    'inclusive': true,
+    backwards: true,
+    inclusive: true,
   });
   let endPoint;
 
   if (vim.modeName === 'insert') {
     endPoint = doc.find(/(\w)$/g, {
-      'backwards': true,
-      'inclusive': true,
+      backwards: true,
+      inclusive: true,
     });
   } else {
-    endPoint = doc.find(/(\w)(?:$|\W)/g, { 'inclusive': true });
+    endPoint = doc.find(/(\w)(?:$|\W)/g, { inclusive: true });
   }
   // Expand for range friendly ness
   endPoint.col++;
@@ -464,15 +458,14 @@ function getCurWord (vim) {
   }
 
   return '';
-
 }
 
 Vim.prototype.addUndoState = function () {
   const pos = this.curDoc.cursor.position();
   const result = this.curDoc.undo.add({
-    'text':   this.curDoc.text(),
-    'cursor': pos,
-    'keys':   this.keyHistory,
+    text: this.curDoc.text(),
+    cursor: pos,
+    keys: this.keyHistory,
   });
 
   if (result) this.keyHistory = '';
@@ -488,7 +481,7 @@ Vim.prototype.add = function (doc) {
   });
   doc.on('change:text', () => {
     this.trigger('change:text');
-    this.trigger('change', { 'type': 'text' });
+    this.trigger('change', { type: 'text' });
   });
   this.docs.push(doc);
   this.curDoc = doc;

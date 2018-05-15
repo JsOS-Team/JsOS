@@ -22,7 +22,7 @@ const nameHandle = Symbol('name');
 const setNameHandle = Symbol('setName');
 
 class BlockDeviceInterface {
-  constructor (bus = '', init = {}) {
+  constructor(bus = '', init = {}) {
     this[busHandle] = bus;
     this[formatInfoHandle] = {};
     this.onread = null;
@@ -43,33 +43,33 @@ class BlockDeviceInterface {
       }
     }
   }
-  get name () {
+  get name() {
     return this[nameHandle];
   }
-  get bus () {
+  get bus() {
     return this[busHandle];
   }
-  [setNameHandle] (newName) {
+  [setNameHandle](newName) {
     this[nameHandle] = newName;
   }
-  read (sector, u8) {
+  read(sector, u8) {
     if (!this.onread) {
       throw new Error('driver was not initialized');
     }
 
     return this.onread(sector, u8);
   }
-  write (sector, u8) {
+  write(sector, u8) {
     if (!this.onwrite) {
       throw new Error('driver was not initialized');
     }
 
     return this.onwrite(sector, u8);
   }
-  get formatInfo () {
+  get formatInfo() {
     return this[formatInfoHandle];
   }
-  get isOnline () {
+  get isOnline() {
     if (!this.ongetonline) {
       throw new Error('driver was not initialized');
     }

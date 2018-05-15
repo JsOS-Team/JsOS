@@ -17,18 +17,18 @@
 // const tcpSocketState = require('./tcp-socket-state');
 const connections = new Set();
 
-function timeoutHandler () {
+function timeoutHandler() {
   for (const connSocket of connections) {
     connSocket._timerTick();
   }
   initTimeout();
 }
 
-function initTimeout () {
+function initTimeout() {
   setTimeout(timeoutHandler, 500);
 }
 
 initTimeout();
 
-exports.addConnectionSocket = (connSocket) => connections.add(connSocket);
-exports.removeConnectionSocket = (connSocket) => connections.delete(connSocket);
+exports.addConnectionSocket = connSocket => connections.add(connSocket);
+exports.removeConnectionSocket = connSocket => connections.delete(connSocket);

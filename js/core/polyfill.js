@@ -15,4 +15,4 @@
 'use strict';
 
 // setImmediate polyfill for kernels < 0.1.9
-global.setImmediate = global.setImmediate || ((f) => setTimeout(f, 0));
+global.setImmediate = global.setImmediate || (f => setTimeout(f, 0));

@@ -4,18 +4,18 @@ const mark = require('../mark');
 module.exports = {
 
   /* Any time you receive multiple keys in one go */
-  '/^((?!\b|esc)[\\w\\W][\\w\\W]+)$/' (keys, vim) {
+  '/^((?!\b|esc)[\\w\\W][\\w\\W]+)$/': function (keys, vim) {
     for (let i = 0; i < keys.length; i++) {
       this.exec(keys.substring(i, i + 1));
     }
   },
 
-  '/^((?!\b|esc|}).)$/' (keys, vim, match) {
+  '/^((?!\b|esc|}).)$/': function (keys, vim, match) {
     this.currentInsertedText += keys;
     vim.insert(keys);
   },
 
-  '/^}$/' () {
+  '/^}$/': function () {
     if (this.rc.smartindent && this.curDoc._lines[this.curDoc.cursor.line()].match(/^\s*$/)) {
       let ct = this.rc.tabstop;
 
@@ -26,10 +26,9 @@ module.exports = {
       this.exec('i');
     }
     this.insert('}');
-
   },
 
-  '/^(\r|\n)$/' (keys) {
+  '/^(\r|\n)$/': function (keys) {
     this.currentInsertedText += keys;
     if (!this.rc.smartindent || this.curDoc._lines[this.curDoc.cursor.line()].length === 0) {
       this.insert('\n');
@@ -65,7 +64,7 @@ module.exports = {
     }
   },
 
-  '/^(\b)$/' (keys, vim) {
+  '/^(\b)$/': function (keys, vim) {
     if (this.currentInsertedText.length) this.currentInsertedText = this.currentInsertedText.substring(0, this.currentInsertedText.length - 1);
     const atZero = !vim.curDoc.cursor.char();
 
@@ -85,7 +84,7 @@ module.exports = {
     }
     vim.exec('i');
   },
-  '/^esc/' (keys, vim) {
+  '/^esc/': function (keys, vim) {
     // Handle text
 
     vim.mode('command');
@@ -114,13 +113,10 @@ module.exports = {
         this.exec('esc');
       }, this);
       this.curDoc.cursor.position(this.lastSelection[0][0]);
-
     }
 
     this.register('.', this.currentInsertedText);
     this.currentInsertedText = this.currentInsertedText.substring(0, 0);
-
-
   },
 
 

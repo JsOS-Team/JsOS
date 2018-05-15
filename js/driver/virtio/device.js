@@ -22,19 +22,19 @@ const DEVICE_STATUS_DRIVER = 2;
 const DEVICE_STATUS_DRIVER_OK = 4;
 
 class VirtioDevice {
-  constructor (deviceType, ioSpace) {
+  constructor(deviceType, ioSpace) {
     this.mem = __SYSCALL.allocDMA();
     this.io = ((ioSpaceResource) => {
       const ioPorts = {
         // Common
-        'DEVICE_FEATURES': 0x00, // 32 bit r
-        'GUEST_FEATURES':  0x04, // 32 bit r+w
-        'QUEUE_ADDRESS':   0x08, // 32 bit r+w
-        'QUEUE_SIZE':      0x0c, // 16 bit r
-        'QUEUE_SELECT':    0x0e, // 16 bit r+w
-        'QUEUE_NOTIFY':    0x10, // 16 bit r+w
-        'DEVICE_STATUS':   0x12, //  8 bit r+w
-        'ISR_STATUS':      0x13, //  8 bit r
+        DEVICE_FEATURES: 0x00, // 32 bit r
+        GUEST_FEATURES: 0x04, // 32 bit r+w
+        QUEUE_ADDRESS: 0x08, // 32 bit r+w
+        QUEUE_SIZE: 0x0c, // 16 bit r
+        QUEUE_SELECT: 0x0e, // 16 bit r+w
+        QUEUE_NOTIFY: 0x10, // 16 bit r+w
+        DEVICE_STATUS: 0x12, //  8 bit r+w
+        ISR_STATUS: 0x13, //  8 bit r
       };
 
       if (deviceType === 'net') {
@@ -71,7 +71,7 @@ class VirtioDevice {
     })(ioSpace);
     this.nextRingOffset = 0;
   }
-  readDeviceFeatures (features) {
+  readDeviceFeatures(features) {
     const deviceFeatures = this.io.DEVICE_FEATURES.read32();
     const result = {};
 
@@ -85,7 +85,7 @@ class VirtioDevice {
 
     return result;
   }
-  writeGuestFeatures (features, driverFeatures, deviceFeatures) {
+  writeGuestFeatures(features, driverFeatures, deviceFeatures) {
     let value = 0;
 
     for (const feature of Object.keys(features)) {
@@ -105,7 +105,7 @@ class VirtioDevice {
 
     return true;
   }
-  queueSetup (queueIndex) {
+  queueSetup(queueIndex) {
     this.io.QUEUE_SELECT.write16(queueIndex >>> 0);
     const size = this.io.QUEUE_SIZE.read16();
     const ring = new VRing(this.mem, this.nextRingOffset, size);
@@ -115,46 +115,46 @@ class VirtioDevice {
 
     return ring;
   }
-  queueNotify (queueIndex) {
+  queueNotify(queueIndex) {
     return this.io.QUEUE_NOTIFY.write16(queueIndex >>> 0);
   }
-  setDriverAck () {
+  setDriverAck() {
     this.io.DEVICE_STATUS.write8(DEVICE_STATUS_ACKNOWLEDGE);
     this.io.DEVICE_STATUS.write8(DEVICE_STATUS_ACKNOWLEDGE | DEVICE_STATUS_DRIVER);
   }
-  setDriverReady () {
+  setDriverReady() {
     return this.io.DEVICE_STATUS.write8(DEVICE_STATUS_ACKNOWLEDGE |
       DEVICE_STATUS_DRIVER | DEVICE_STATUS_DRIVER_OK);
   }
-  resetDevice () {
+  resetDevice() {
     return this.io.DEVICE_STATUS.write8(DEVICE_STATUS_RESET);
   }
-  hasPendingIRQ () {
+  hasPendingIRQ() {
     return Boolean(1 & this.io.ISR_STATUS.read8());
   }
   // [network device]
-  netReadHWAddress () {
+  netReadHWAddress() {
     return [
       this.io.NETWORK_DEVICE_MAC0.read8(),
       this.io.NETWORK_DEVICE_MAC1.read8(),
       this.io.NETWORK_DEVICE_MAC2.read8(),
       this.io.NETWORK_DEVICE_MAC3.read8(),
       this.io.NETWORK_DEVICE_MAC4.read8(),
-      this.io.NETWORK_DEVICE_MAC5.read8()
+      this.io.NETWORK_DEVICE_MAC5.read8(),
     ];
   }
   // [network device]
-  netReadStatus () {
+  netReadStatus() {
     return Boolean(1 & this.io.NETWORK_DEVICE_STATUS.read16());
   }
 
   // [block device]
-  blkReadSectorCount () {
+  blkReadSectorCount() {
     return this.io.BLOCK_SECTOR_COUNT.read8();
   }
 
   // [block device]
-  blkReadTotalSectorCount () {
+  blkReadTotalSectorCount() {
     return this.io.BLOCK_TOTAL_SECTOR_COUNT.read32();
   }
 }

@@ -1,12 +1,12 @@
 let S = require('./structs.js'),
   _ = require('./helpers.js');
 
-function _baseChain (vol) {
+function _baseChain(vol) {
   const chain = {};
 
   chain.sectorSize = vol._sectorSize;
 
-  function posFromOffset (off) {
+  function posFromOffset(off) {
     let secSize = chain.sectorSize,
       offset = off % secSize,
       sector = (off - offset) / secSize;
@@ -20,11 +20,11 @@ function _baseChain (vol) {
   const sectorCache = vol._makeCache();
 
   Object.defineProperty(chain, 'cacheAdvice', {
-    'enumerable': true,
-    'get' () {
+    enumerable: true,
+    get() {
       return sectorCache.advice();
     },
-    'set' (v) {
+    set(v) {
       sectorCache.advice(v);
     },
   });
@@ -39,29 +39,33 @@ function _baseChain (vol) {
     /* NOTE: to keep our contract with the volume driver, we need to read on _full_ sector boundaries!
                  So we divide the read into [up to] three parts: {preface, main, trailer}
                  This is kind of unfortunate, but in practice should often still be reasonably efficient. */
-    if (targetPos.offset) chain.readSectors(targetPos.sector, Buffer(chain.sectorSize), (e, d) => {
-      if (e || !d) cb(e, 0, buffer);
-      else { // copy preface into `buffer`
-        let dBeg = targetPos.offset,
-          dEnd = dBeg + buffer.length;
+    if (targetPos.offset) {
+      chain.readSectors(targetPos.sector, Buffer(chain.sectorSize), (e, d) => {
+        if (e || !d) cb(e, 0, buffer);
+        else { // copy preface into `buffer`
+          let dBeg = targetPos.offset,
+            dEnd = dBeg + buffer.length;
 
-        d.copy(buffer, 0, dBeg, dEnd);
-        if (dEnd > d.length) readMain();
-        else cb(null, buffer.length, buffer);
-      }
-    }); else readMain();
-    function readMain () {
+          d.copy(buffer, 0, dBeg, dEnd);
+          if (dEnd > d.length) readMain();
+          else cb(null, buffer.length, buffer);
+        }
+      });
+    } else readMain();
+    function readMain() {
       let prefaceLen = targetPos.offset,
         trailerLen = (buffer.length - prefaceLen) % chain.sectorSize,
         mainSector = prefaceLen ? targetPos.sector + 1 : targetPos.sector,
         mainBuffer = trailerLen ? buffer.slice(prefaceLen, -trailerLen) : buffer.slice(prefaceLen);
 
-      if (mainBuffer.length) chain.readSectors(mainSector, mainBuffer, (e, d) => {
-        if (e || !d) cb(e, prefaceLen, buffer);
-        else if (!trailerLen) cb(null, buffer.length, buffer);
-        else readTrailer();
-      }); else readTrailer();
-      function readTrailer () {
+      if (mainBuffer.length) {
+        chain.readSectors(mainSector, mainBuffer, (e, d) => {
+          if (e || !d) cb(e, prefaceLen, buffer);
+          else if (!trailerLen) cb(null, buffer.length, buffer);
+          else readTrailer();
+        });
+      } else readTrailer();
+      function readTrailer() {
         const trailerSector = mainSector + mainBuffer.length / chain.sectorSize;
 
         chain.readSectors(trailerSector, Buffer(chain.sectorSize), (e, d) => {
@@ -82,30 +86,34 @@ function _baseChain (vol) {
 
     const prefaceBuffer = targetPos.offset ? data.slice(0, chain.sectorSize - targetPos.offset) : null;
 
-    if (prefaceBuffer) _modifySector(targetPos.sector, targetPos.offset, prefaceBuffer, (e) => {
-      if (e) cb(e);
-      else if (prefaceBuffer.length < data.length) writeMain();
-      else cb();
-    }); else writeMain();
-    function writeMain () {
+    if (prefaceBuffer) {
+      _modifySector(targetPos.sector, targetPos.offset, prefaceBuffer, (e) => {
+        if (e) cb(e);
+        else if (prefaceBuffer.length < data.length) writeMain();
+        else cb();
+      });
+    } else writeMain();
+    function writeMain() {
       let prefaceLen = prefaceBuffer ? prefaceBuffer.length : 0,
         trailerLen = (data.length - prefaceLen) % chain.sectorSize,
         mainSector = prefaceLen ? targetPos.sector + 1 : targetPos.sector,
         mainBuffer = trailerLen ? data.slice(prefaceLen, -trailerLen) : data.slice(prefaceLen);
 
-      if (mainBuffer.length) chain.writeSectors(mainSector, mainBuffer, (e) => {
-        if (e) cb(e);
-        else if (!trailerLen) cb();
-        else writeTrailer();
-      }); else writeTrailer();
-      function writeTrailer () {
+      if (mainBuffer.length) {
+        chain.writeSectors(mainSector, mainBuffer, (e) => {
+          if (e) cb(e);
+          else if (!trailerLen) cb();
+          else writeTrailer();
+        });
+      } else writeTrailer();
+      function writeTrailer() {
         let trailerSector = mainSector + mainBuffer.length / chain.sectorSize,
           trailerBuffer = data.slice(data.length - trailerLen); // WORKAROUND: https://github.com/tessel/runtime/issues/721
 
         _modifySector(trailerSector, 0, trailerBuffer, cb);
       }
     }
-    function _modifySector (sec, off, data, cb) {
+    function _modifySector(sec, off, data, cb) {
       chain.readSectors(sec, Buffer(chain.sectorSize), (e, orig) => {
         if (e) return cb(e);
         orig || (orig = _.filledBuffer(chain.sectorSize, 0));
@@ -125,52 +133,60 @@ exports.clusterChain = function (vol, firstCluster, _parent) {
 
   chain.firstCluster = firstCluster;
 
-  function _cacheIsComplete () {
+  function _cacheIsComplete() {
     return cache[cache.length - 1] === 'eof';
   }
 
-  function extendCacheToInclude (i, cb) { // NOTE: may `cb()` before returning!
+  function extendCacheToInclude(i, cb) { // NOTE: may `cb()` before returning!
     if (i < cache.length) cb(null, cache[i]);
     else if (_cacheIsComplete()) cb(null, 'eof');
-    else vol.fetchFromFAT(cache[cache.length - 1], (e, d) => {
-      if (e) cb(e);
-      else if (typeof d === 'string' && d !== 'eof') cb(S.err.IO());
-      else {
-        cache.push(d);
-        extendCacheToInclude(i, cb);
-      }
-    });
+    else {
+      vol.fetchFromFAT(cache[cache.length - 1], (e, d) => {
+        if (e) cb(e);
+        else if (typeof d === 'string' && d !== 'eof') cb(S.err.IO());
+        else {
+          cache.push(d);
+          extendCacheToInclude(i, cb);
+        }
+      });
+    }
   }
 
-  function expandChainToLength (clusterCount, cb) {
+  function expandChainToLength(clusterCount, cb) {
     if (!_cacheIsComplete()) throw Error('Must be called only when cache is complete!');
     else cache.pop(); // remove 'eof' entry until finished
 
-    function addCluster (clustersNeeded, lastCluster) {
+    function addCluster(clustersNeeded, lastCluster) {
       if (!clustersNeeded) cache.push('eof'), cb();
-      else vol.allocateInFAT(lastCluster, (e, newCluster) => {
-        if (e) cb(e);
-        else vol.storeToFAT(lastCluster, newCluster, (e) => {
-          if (e) return cb(e);
+      else {
+        vol.allocateInFAT(lastCluster, (e, newCluster) => {
+          if (e) cb(e);
+          else {
+            vol.storeToFAT(lastCluster, newCluster, (e) => {
+              if (e) return cb(e);
 
-          cache.push(newCluster);
-          addCluster(clustersNeeded - 1, newCluster);
+              cache.push(newCluster);
+              addCluster(clustersNeeded - 1, newCluster);
+            });
+          }
         });
-      });
+      }
     }
     addCluster(clusterCount - cache.length, cache[cache.length - 1]);
   }
 
-  function shrinkChainToLength (clusterCount, cb) {
+  function shrinkChainToLength(clusterCount, cb) {
     if (!_cacheIsComplete()) throw Error('Must be called only when cache is complete!');
     else cache.pop(); // remove 'eof' entry until finished
 
-    function removeClusters (count, cb) {
+    function removeClusters(count, cb) {
       if (!count) cache.push('eof'), cb();
-      else vol.storeToFAT(cache.pop(), 'free', (e) => {
-        if (e) cb(e);
-        else removeClusters(count - 1, cb);
-      });
+      else {
+        vol.storeToFAT(cache.pop(), 'free', (e) => {
+          if (e) cb(e);
+          else removeClusters(count - 1, cb);
+        });
+      }
     }
     // NOTE: for now, we don't remove the firstCluster ourselves; we should though!
     if (clusterCount) removeClusters(cache.length - clusterCount, cb);
@@ -178,7 +194,7 @@ exports.clusterChain = function (vol, firstCluster, _parent) {
   }
 
   // [{firstSector,numSectors},{firstSector,numSectors},…]
-  function determineSectorGroups (sectorIdx, numSectors, alloc, cb) {
+  function determineSectorGroups(sectorIdx, numSectors, alloc, cb) {
     let sectorOffset = sectorIdx % vol._sectorsPerCluster,
       clusterIdx = (sectorIdx - sectorOffset) / vol._sectorsPerCluster,
       numClusters = Math.ceil((numSectors + sectorOffset) / vol._sectorsPerCluster),
@@ -186,13 +202,14 @@ exports.clusterChain = function (vol, firstCluster, _parent) {
 
     extendCacheToInclude(chainLength - 1, (e, c) => {
       if (e) cb(e);
-      else if (c === 'eof' && alloc) expandChainToLength(chainLength, (e) => {
-        if (e) cb(e);
-        else _determineSectorGroups();
-      });
-      else _determineSectorGroups();
+      else if (c === 'eof' && alloc) {
+        expandChainToLength(chainLength, (e) => {
+          if (e) cb(e);
+          else _determineSectorGroups();
+        });
+      } else _determineSectorGroups();
     });
-    function _determineSectorGroups () {
+    function _determineSectorGroups() {
       // …now we have a complete cache
       let groups = [],
         _group = null;
@@ -205,11 +222,13 @@ exports.clusterChain = function (vol, firstCluster, _parent) {
           groups.push(_group);
           _group = null;
         }
-        if (!_group) _group = {
-          '_nextCluster': c + 1,
-          'firstSector':  vol._firstSectorOfCluster(c) + sectorOffset,
-          'numSectors':   vol._sectorsPerCluster - sectorOffset,
-        }; else {
+        if (!_group) {
+          _group = {
+            _nextCluster: c + 1,
+            firstSector: vol._firstSectorOfCluster(c) + sectorOffset,
+            numSectors: vol._sectorsPerCluster - sectorOffset,
+          };
+        } else {
           _group._nextCluster += 1;
           _group.numSectors += vol._sectorsPerCluster;
         }
@@ -227,16 +246,17 @@ exports.clusterChain = function (vol, firstCluster, _parent) {
     determineSectorGroups(i, dest.length / chain.sectorSize, false, (e, groups, complete) => {
       if (e) cb(e);
       else if (!complete) groupsPending = -1, _pastEOF(cb);
-      else if (groupsPending = groups.length) groups.forEach((group) => {
-        let groupLength = group.numSectors * chain.sectorSize,
-          groupBuffer = dest.slice(groupOffset, groupOffset += groupLength);
+      else if (groupsPending = groups.length) {
+        groups.forEach((group) => {
+          let groupLength = group.numSectors * chain.sectorSize,
+            groupBuffer = dest.slice(groupOffset, groupOffset += groupLength);
 
-        chain._vol_readSectors(group.firstSector, groupBuffer, (e, d) => {
-          if (e && groupsPending !== -1) groupsPending = -1, cb(e);
-          else if (--groupsPending === 0) cb(null, dest);
+          chain._vol_readSectors(group.firstSector, groupBuffer, (e, d) => {
+            if (e && groupsPending !== -1) groupsPending = -1, cb(e);
+            else if (--groupsPending === 0) cb(null, dest);
+          });
         });
-      });
-      else cb(null, dest); // 0-length destination case
+      } else cb(null, dest); // 0-length destination case
     });
   };
 
@@ -247,16 +267,17 @@ exports.clusterChain = function (vol, firstCluster, _parent) {
 
     determineSectorGroups(i, data.length / chain.sectorSize, true, (e, groups) => {
       if (e) cb(e);
-      else if (groupsPending = groups.length) groups.forEach((group) => {
-        let groupLength = group.numSectors * chain.sectorSize,
-          groupBuffer = data.slice(groupOffset, groupOffset += groupLength);
+      else if (groupsPending = groups.length) {
+        groups.forEach((group) => {
+          let groupLength = group.numSectors * chain.sectorSize,
+            groupBuffer = data.slice(groupOffset, groupOffset += groupLength);
 
-        chain._vol_writeSectors(group.firstSector, groupBuffer, (e) => {
-          if (e && groupsPending !== -1) groupsPending = -1, cb(e);
-          else if (--groupsPending === 0) cb();
+          chain._vol_writeSectors(group.firstSector, groupBuffer, (e) => {
+            if (e && groupsPending !== -1) groupsPending = -1, cb(e);
+            else if (--groupsPending === 0) cb();
+          });
         });
-      });
-      else cb(); // 0-length data case
+      } else cb(); // 0-length data case
     });
   };
 
@@ -312,6 +333,6 @@ exports.sectorChain = function (vol, firstSector, numSectors) {
 };
 
 // NOTE: used with mixed feelings, broken out to mark uses
-function _pastEOF (cb) {
+function _pastEOF(cb) {
   _.delayedCall(cb, null, null);
 }

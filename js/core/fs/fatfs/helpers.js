@@ -13,11 +13,13 @@ exports.workaroundTessel380 = (function () {
 // WORKAROUND: https://github.com/tessel/beta/issues/433
 let oldslice;
 
-if (Buffer(5).slice(10).length < 0) oldslice = Buffer.prototype.slice, Buffer.prototype.slice = function (s, e) {
-  if (s > this.length) s = this.length;
-  // ~WORKAROUND: https://github.com/tessel/beta/issues/434
-  return arguments.length > 1 ? oldslice.call(this, s, e) : oldslice.call(this, s);
-};
+if (Buffer(5).slice(10).length < 0) {
+  oldslice = Buffer.prototype.slice, Buffer.prototype.slice = function (s, e) {
+    if (s > this.length) s = this.length;
+    // ~WORKAROUND: https://github.com/tessel/beta/issues/434
+    return arguments.length > 1 ? oldslice.call(this, s, e) : oldslice.call(this, s);
+  };
+}
 
 exports.absoluteSteps = function (path) {
   const steps = [];
@@ -37,7 +39,8 @@ exports.absolutePath = function (path) {
 
 exports.parseFlags = function (flags) {
   // read, write, append, create, truncate, exclusive
-  let _dir, info; // NOTE: there might be more clever ways to "parse", but…
+  let _dir,
+    info; // NOTE: there might be more clever ways to "parse", but…
 
   if (flags[0] === '\\') {
     // internal flag used internally to `fs.open` directories without `S.err.ISDIR()`
@@ -46,76 +49,76 @@ exports.parseFlags = function (flags) {
   }
   switch (flags) {
     case 'r': info = {
-      'read':   true,
-      'write':  false,
-      'create': false,
+      read: true,
+      write: false,
+      create: false,
     }; break;
     case 'r+': info = {
-      'read':   true,
-      'write':  true,
-      'create': false,
+      read: true,
+      write: true,
+      create: false,
     }; break;
     case 'rs': info = {
-      'read':   true,
-      'write':  false,
-      'create': false,
-      'sync':   true,
+      read: true,
+      write: false,
+      create: false,
+      sync: true,
     }; break;
     case 'rs+': info = {
-      'read':   true,
-      'write':  true,
-      'create': false,
-      'sync':   true,
+      read: true,
+      write: true,
+      create: false,
+      sync: true,
     }; break;
     case 'w': info = {
-      'read':     false,
-      'write':    true,
-      'create':   true,
-      'truncate': true,
+      read: false,
+      write: true,
+      create: true,
+      truncate: true,
     }; break;
     case 'wx': info = {
-      'read':      false,
-      'write':     true,
-      'create':    true,
-      'exclusive': true,
+      read: false,
+      write: true,
+      create: true,
+      exclusive: true,
     }; break;
     case 'w+': info = {
-      'read':     true,
-      'write':    true,
-      'create':   true,
-      'truncate': true,
+      read: true,
+      write: true,
+      create: true,
+      truncate: true,
     }; break;
     case 'wx+': info = {
-      'read':      true,
-      'write':     true,
-      'create':    true,
-      'exclusive': true,
+      read: true,
+      write: true,
+      create: true,
+      exclusive: true,
     }; break;
     case 'a': info = {
-      'read':   false,
-      'write':  true,
-      'create': true,
-      'append': true,
+      read: false,
+      write: true,
+      create: true,
+      append: true,
     }; break;
     case 'ax': info = {
-      'read':      false,
-      'write':     true,
-      'create':    true,
-      'append':    true,
-      'exclusive': true,
+      read: false,
+      write: true,
+      create: true,
+      append: true,
+      exclusive: true,
     }; break;
     case 'a+': info = {
-      'read':   true,
-      'write':  true,
-      'create': true,
-      'append': true,
+      read: true,
+      write: true,
+      create: true,
+      append: true,
     }; break;
     case 'ax+': info = {
-      'read':      true,
-      'write':     true,
-      'create':    true,
-      'append':    true,
-      'exclusive': true,
+      read: true,
+      write: true,
+      create: true,
+      append: true,
+      exclusive: true,
     }; break;
     default: throw Error(`Uknown mode: ${flags}`); // TODO: throw as `S.err.INVAL`
   }
@@ -161,13 +164,13 @@ exports.shortname = function (name) {
   } else while (basis3.length < 3) basis3 += ' ';
 
   return {
-    'filename':  basis8,
-    'extension': basis3,
-    '_lossy':    lossy,
+    filename: basis8,
+    extension: basis3,
+    _lossy: lossy,
   };
 
   return {
-    'basis': [basis8, basis3],
+    basis: [basis8, basis3],
     lossy,
   };
 };
@@ -192,12 +195,12 @@ exports.longname = function (name) {
   return name;
 };
 
-function nameChkSum (sum, c) {
+function nameChkSum(sum, c) {
   return (sum & 1 ? 0x80 : 0) + (sum >>> 1) + c & 0xFF;
 }
 
 // WORKAROUND: https://github.com/tessel/beta/issues/335
-function reduceBuffer (buf, start, end, fn, res) {
+function reduceBuffer(buf, start, end, fn, res) {
   // NOTE: does not handle missing `res` like Array.prototype.reduce would
   for (let i = start; i < end; ++i) {
     res = fn(res, buf[i]);
@@ -247,9 +250,9 @@ exports.delayedCall = function (fn) {
 
 exports.adjustedPos = function (vol, pos, bytes) {
   let _pos = {
-      'chain':  pos.chain,
-      'sector': pos.sector,
-      'offset': pos.offset + bytes,
+      chain: pos.chain,
+      sector: pos.sector,
+      offset: pos.offset + bytes,
     },
     secSize = vol._sectorSize;
 
@@ -274,7 +277,7 @@ exports.filledBuffer = function (len, val) {
 let _prevDbg = Date.now(),
   _thresh = 50;
 
-function log (level) {
+function log(level) {
   if (level < log.level) return;
 
   let now = Date.now(),

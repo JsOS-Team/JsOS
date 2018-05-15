@@ -2,12 +2,12 @@ const _ = require('underscore');
 // http://blog.elliotjameschong.com/2012/10/10/underscore-js-deepclone-and-deepextend-mix-ins/ thanks!
 
 _.mixin({
-  'deepClone' (p_object) {
+  deepClone(p_object) {
     return JSON.parse(JSON.stringify(p_object));
   },
 });
 
-function shallowCopy (obj) {
+function shallowCopy(obj) {
   const newObj = {};
 
   for (const i in obj) {

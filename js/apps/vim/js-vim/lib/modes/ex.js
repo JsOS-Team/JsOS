@@ -1,4 +1,4 @@
-function parseRange (range, doc) {
+function parseRange(range, doc) {
   if (range === '.-') range = '.-1';
   if (range === '-') range = '.-1';
   if (range === '.+') range = '.+1';
@@ -28,11 +28,10 @@ function parseRange (range, doc) {
 }
 
 module.exports = function (Vim) {
-
   Vim.addCommand({
-    'mode':  'command',
-    'match': /:(.+)s(?:ubstitute)?(\/.*\n)/,
-    'fn' (keys, vim, expr) {
+    mode: 'command',
+    match: /:(.+)s(?:ubstitute)?(\/.*\n)/,
+    fn(keys, vim, expr) {
       const position = this.curDoc.cursor.position();
       let range = expr[1];
 
@@ -50,30 +49,30 @@ module.exports = function (Vim) {
   });
 
   Vim.addCommand({
-    'mode':  'command',
-    'match': /:s(\/.*\n)/,
-    'fn' (keys, vim, expr) {
+    mode: 'command',
+    match: /:s(\/.*\n)/,
+    fn(keys, vim, expr) {
       vim.exec(keys.replace(/:s/, ':substitute'));
     },
   });
   Vim.addCommand({
-    'mode':  'command',
-    'match': /:substitute\/([^\/]*)\/([^\/]*)\n/,
-    'fn' (keys, vim, expr) {
+    mode: 'command',
+    match: /:substitute\/([^\/]*)\/([^\/]*)\n/,
+    fn(keys, vim, expr) {
       vim.exec(keys.replace(/\n/, '/\n'));
     },
   });
 
   Vim.addCommand({
-    'mode':  'command',
-    'match': /:substitute\/(.*)\/(.*)\/([gci]*)\n/,
-    'fn' (res, vim, expr) {
+    mode: 'command',
+    match: /:substitute\/(.*)\/(.*)\/([gci]*)\n/,
+    fn(res, vim, expr) {
       const pos = this.curDoc.cursor.position();
       const flags = (expr[3] || '').split('');
 
       val = this.curDoc.find(new RegExp(`(${expr[1]})`, 'g'), {
-        'wholeLine': true,
-        'range':     false,
+        wholeLine: true,
+        range: false,
       });
       while (val.found) {
         this.curDoc.cursor.char(val.char);
@@ -89,8 +88,8 @@ module.exports = function (Vim) {
         // If not global, stop after first.
         if (flags.indexOf('g') === -1) break;
         val = this.curDoc.find(new RegExp(`(${expr[1]})`, 'g'), {
-          'wholeLine': true,
-          'range':     false,
+          wholeLine: true,
+          range: false,
         });
       }
       this.curDoc.cursor.char(pos.char);
@@ -99,17 +98,17 @@ module.exports = function (Vim) {
   });
 
   Vim.addCommand({
-    'mode':  'command',
-    'match': /:substitute\/([^\/]*)\/([^\/]*)\n/,
-    'fn' (keys, vim, expr) {
+    mode: 'command',
+    match: /:substitute\/([^\/]*)\/([^\/]*)\n/,
+    fn(keys, vim, expr) {
       vim.exec(keys.replace(/\n/, '/\n'));
     },
   });
 
   Vim.addCommand({
-    'mode':  'command',
-    'match': /:(.*)g\/([^\/]*)\/([^\/]*)\n/,
-    'fn' (keys, vim, expr) {
+    mode: 'command',
+    match: /:(.*)g\/([^\/]*)\/([^\/]*)\n/,
+    fn(keys, vim, expr) {
       let range = parseRange(expr[1], this.curDoc),
         pattern = expr[2],
         command = expr[3];
@@ -119,11 +118,8 @@ module.exports = function (Vim) {
       while (end >= range[0]) {
 
       }
-
-
     },
   });
-
 };
 
 module.exports.parseRange = parseRange;

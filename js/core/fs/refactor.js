@@ -6,7 +6,7 @@
 'use strict';
 
 class Path {
-  constructor (path) {
+  constructor(path) {
     if (path instanceof Path) {
       return path;
     }
@@ -31,11 +31,11 @@ class Path {
   }
 
 
-  toString () {
+  toString() {
     return `/${this.parts.join('/')}`;
   }
 
-  includes (path) {
+  includes(path) {
     path = new Path(path);
     for (let i = 0; i < this.length; i++) {
       if (this.parts[i] !== path.parts[i]) {
@@ -46,7 +46,7 @@ class Path {
     return true;
   }
 
-  equals (path) {
+  equals(path) {
     path = new Path(path);
     if (this.length !== path.length) {
       return false;
@@ -55,7 +55,7 @@ class Path {
     return this.includes(path);
   }
 
-  removePrefix (prefix) {
+  removePrefix(prefix) {
     prefix = new Path(prefix);
     if (!prefix.includes(this)) {
       return null;
@@ -65,17 +65,17 @@ class Path {
     return new Path(`/${parts.join('/')}`);
   }
 
-  normalize () {
+  normalize() {
     // TODO: Write me...
   }
 
-  static normalize (/* path */) {
+  static normalize(/* path */) {
     // TODO: Write me...
   }
 }
 
 class Filesystem {
-  constructor () {
+  constructor() {
     this.mountpoints = [];
 
     this.mount = this.mount.bind(this);
@@ -85,7 +85,7 @@ class Filesystem {
     this.findMountpoint = this.findMountpoint.bind(this);
   }
 
-  mount (path, fs) {
+  mount(path, fs) {
     path = new Path(path);
     if (typeof fs.init === 'function') {
       fs.init();
@@ -96,7 +96,7 @@ class Filesystem {
     });
   }
 
-  unmount (path) {
+  unmount(path) {
     const mountpoint = this.findMountpoint(path);
 
     for (let i = 0; i < this.mountpoints.length; i++) {
@@ -113,7 +113,7 @@ class Filesystem {
     return false;
   }
 
-  read (path) {
+  read(path) {
     const file = this.find(path);
 
     if (file === null || file.getType() !== 'file') {
@@ -123,7 +123,7 @@ class Filesystem {
     return file.readAllBytes();
   }
 
-  find (path) {
+  find(path) {
     path = new Path(path);
     const mountpoint = this.findMountpoint(path);
 
@@ -134,7 +134,7 @@ class Filesystem {
     return mountpoint.fs.find(path.removePrefix(mountpoint.path).toString());
   }
 
-  findMountpoint (path) {
+  findMountpoint(path) {
     path = new Path(path);
     let bestMatch = null;
 

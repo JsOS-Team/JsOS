@@ -16,7 +16,7 @@
 'use strict';
 
 class StdioInterface {
-  constructor () {
+  constructor() {
     this.onread = () => {};
     this.onwrite = () => {};
     this.onwriteerror = () => {};
@@ -35,51 +35,51 @@ class StdioInterface {
     this.readLine = this.readLine.bind(this);
   }
 
-  get color () {
+  get color() {
     return this.getColor();
   }
 
-  get bgcolor () {
+  get bgcolor() {
     return this.getBgColor();
   }
 
   // stdout
-  write (...text) {
+  write(...text) {
     this.onwrite(text.join(' '));
   }
 
-  writeLine (...text) {
+  writeLine(...text) {
     this.onwrite(`${text.join(' ')}\n`);
   }
 
-  setColor (fg) {
+  setColor(fg) {
     this.onsetcolor(fg);
   }
 
-  setBackgroundColor (bg) {
+  setBackgroundColor(bg) {
     this.onsetbackgroundcolor(bg);
   }
 
-  moveTo (x, y) {
+  moveTo(x, y) {
     this.onmoveto(x, y);
   }
-  moveOffset (offset) {
+  moveOffset(offset) {
     this.onmoveoffset(offset);
   }
 
-  clear () {
+  clear() {
     this.onclear();
   }
 
   // stdin
-  read (cb) {
+  read(cb) {
     this.onread(cb);
   }
 
-  readLine (cb) {
+  readLine(cb) {
     let text = '';
 
-    function addinput (char) {
+    function addinput(char) {
       if (char !== '\n') {
         text += char;
         this.onread(addinput);
@@ -100,7 +100,7 @@ class StdioInterface {
   }
 
   // stderr
-  writeError (...text) {
+  writeError(...text) {
     this.write('\n');
     if (typeof text[0] === 'string') {
       this.onwriteerror(text.join(' '));

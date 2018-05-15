@@ -18,7 +18,7 @@ const EventEmitter = require('events');
 const Duplex = require('stream').Duplex;
 const dns = require('dns');
 
-function rmFromArrayByVal (array, val) {
+function rmFromArrayByVal(array, val) {
   const i = array.indexOf(val);
 
   if (i !== -1) array.splice(i, 1);
@@ -26,7 +26,7 @@ function rmFromArrayByVal (array, val) {
 
 
 class Socket extends Duplex {
-  constructor (optsOpt, runtimeSocketOpt) {
+  constructor(optsOpt, runtimeSocketOpt) {
     super();
     let opts = optsOpt;
     let runtimeSocket = runtimeSocketOpt;
@@ -36,7 +36,7 @@ class Socket extends Duplex {
       opts = null;
     }
     this._handle = runtimeSocket || new runtime.net.TCPSocket();
-    this._handle.ondata = (u8) => this.push(new Buffer(u8));
+    this._handle.ondata = u8 => this.push(new Buffer(u8));
     this._handle.onopen = () => this.emit('connect');
     this._handle.onend = () => this.push(null);
     this._handle.onclose = () => this.emit('close', false);
@@ -44,14 +44,14 @@ class Socket extends Duplex {
     this.bytesRead = 0;
     this.bytesWritten = 0;
   }
-  address () {
+  address() {
     return {
-      'port':    null,
-      'family':  null,
-      'address': null,
+      port: null,
+      family: null,
+      address: null,
     };
   }
-  connect (portOpt, hostOpt, cbOpt) {
+  connect(portOpt, hostOpt, cbOpt) {
     let opts = {};
     let port = portOpt;
     let host = hostOpt;
@@ -92,37 +92,37 @@ class Socket extends Duplex {
       });
     }
   }
-  destroy () {
+  destroy() {
     this._handle.close();
   }
-  end (data, encoding) {
+  end(data, encoding) {
     if (data) {
       this.write(data, encoding);
     }
     this._handle.halfclose();
   }
-  get localAddress () {
+  get localAddress() {
     return this._handle.localAddress;
   }
-  get localPort () {
+  get localPort() {
     return this._handle.localPort;
   }
-  ref () {}
-  get remoteAddress () {
+  ref() {}
+  get remoteAddress() {
     return this._handle.remoteAddress;
   }
-  get remoteFamily () {
+  get remoteFamily() {
     return 'IPv4';
   }
-  get remotePort () {
+  get remotePort() {
     return this._handle.remotePort;
   }
-  setKeepAlive () {}
-  setNoDelay () {}
-  setTimeout () {}
-  unref () {}
-  _read () {} // can't force a read. do nothing.
-  _write (chunkOpt, encoding, callback) {
+  setKeepAlive() {}
+  setNoDelay() {}
+  setTimeout() {}
+  unref() {}
+  _read() {} // can't force a read. do nothing.
+  _write(chunkOpt, encoding, callback) {
     let chunk = chunkOpt;
 
     if (!(chunk instanceof Buffer)) {
@@ -134,7 +134,7 @@ class Socket extends Duplex {
 }
 
 class Server extends EventEmitter {
-  constructor (opts, connectionListener, runtimeServer) {
+  constructor(opts, connectionListener, runtimeServer) {
     super();
     this._handle = runtimeServer || new runtime.net.TCPServerSocket();
     this._connections = [];
@@ -153,24 +153,24 @@ class Server extends EventEmitter {
     this._handle.onlisten = () => this.emit('listening');
     if (connectionListener) this.on('connection', connectionListener);
   }
-  address () {
+  address() {
     return {
-      'port':    this._handle.localPort,
-      'family':  'IPv4',
-      'address': '127.0.0.1',
+      port: this._handle.localPort,
+      family: 'IPv4',
+      address: '127.0.0.1',
     };
   }
-  close (cb) {
+  close(cb) {
     if (cb) this.once('close', cb);
     this._handle.close();
   }
-  get connections () {
+  get connections() {
     return this._connections.length;
   }
-  getConnections (cb) {
+  getConnections(cb) {
     if (cb) cb(null, this._connections.length);
   }
-  listen (port, hostname, backlog, callback) {
+  listen(port, hostname, backlog, callback) {
     let options = {};
 
     if (typeof hostname === 'function') {
@@ -195,8 +195,8 @@ class Server extends EventEmitter {
   }
 
   // ref and unref do nothing, since runtime isn't a process
-  ref () {}
-  unref () {}
+  ref() {}
+  unref() {}
 }
 
 exports.Socket = Socket;

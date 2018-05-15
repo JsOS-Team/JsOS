@@ -19,13 +19,14 @@ const DescriptorTable = require('./descriptor-table');
 const AvailableRing = require('./available-ring');
 const UsedRing = require('./used-ring');
 const { memoryBarrier } = require('../../../core/atomic');
+
 const SIZEOF_UINT16 = 2;
 
 class VRing {
-  constructor (mem, byteOffset, ringSize) {
+  constructor(mem, byteOffset, ringSize) {
     assert(ringSize !== 0 && (ringSize & ringSize - 1) === 0, `invalid ringSize = ${ringSize}`);
 
-    function align (value) {
+    function align(value) {
       return (value + 4095 & ~4095) >>> 0;
     }
 
@@ -44,7 +45,7 @@ class VRing {
     this.availableRing.setEventIdx(this.usedRing.lastUsedIndex);
     this.availableRing.enableInterrupts();
   }
-  fetchBuffers (fn) {
+  fetchBuffers(fn) {
     let count = 0;
 
     for (;;) {
@@ -86,7 +87,7 @@ class VRing {
    * @param isWriteOnly {bool} R/W buffers flag
    * @param isWriteOnlyArray {array} optional array of 'isWriteOnly's, one for each buffer
    */
-  placeBuffers (buffers, isWriteOnly, isWriteOnlyArray) {
+  placeBuffers(buffers, isWriteOnly, isWriteOnlyArray) {
     if (this.suppressInterrupts) {
       this.fetchBuffers(null);
     }
@@ -117,7 +118,7 @@ class VRing {
       pageSplitBuffers,
       lengths,
       isWriteOnly,
-      isWriteOnlyArray
+      isWriteOnlyArray,
     );
 
     if (first < 0) {
@@ -135,7 +136,7 @@ class VRing {
 
     return true;
   }
-  getBuffer () {
+  getBuffer() {
     const hasUnprocessed = this.usedRing.hasUnprocessedBuffers();
 
     if (!hasUnprocessed) {
@@ -166,14 +167,14 @@ class VRing {
 
     return buffer.subarray(0, len);
   }
-  isNotificationNeeded () {
+  isNotificationNeeded() {
     // Barrier to make sure we've updated index before
     // checking notifications flag
     memoryBarrier();
 
     return this.usedRing.isNotificationNeeded();
   }
-  suppressUsedBuffers () {
+  suppressUsedBuffers() {
     this.availableRing.disableInterrupts();
     this.suppressInterrupts = true;
   }

@@ -1,5 +1,5 @@
 module.exports = {
-  '/(.*)\n/' (keys, vim, res) {
+  '/(.*)\n/': function (keys, vim, res) {
 
     // listen to keystrokes
 

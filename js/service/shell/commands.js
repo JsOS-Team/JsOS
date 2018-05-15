@@ -17,63 +17,64 @@
 'use strict';
 
 const processor = require('./index.js');
+
 const { log, warn } = $$.logger;
 
 debug('Loading commands...');
 
 const cmds = {
-  'shutdown': {
-    'description': 'Shut down the computer',
-    'usage':       'shutdown',
-    run (args, f, res) {
+  shutdown: {
+    description: 'Shut down the computer',
+    usage: 'shutdown',
+    run(args, f, res) {
       warn('Shutting down...');
       $$.machine.shutdown();
 
       return res(0);
     },
   },
-  'suspend': {
-    'description': 'Suspend the computer',
-    'usage':       'suspend',
-    run (args, f, res) {
+  suspend: {
+    description: 'Suspend the computer',
+    usage: 'suspend',
+    run(args, f, res) {
       warn('Suspending...');
       $$.machine.suspend();
 
       return res(0);
     },
   },
-  'reboot': {
-    'description': 'Reboot the computer',
-    'usage':       'reboot',
-    run (args, f, res) {
+  reboot: {
+    description: 'Reboot the computer',
+    usage: 'reboot',
+    run(args, f, res) {
       warn('Rebooting...');
       $$.machine.reboot();
 
       return res(0);
     },
   },
-  'echo': {
-    'description': 'Display text into the screen',
-    'usage':       'echo <text>',
-    run (suffix, f, res) {
+  echo: {
+    description: 'Display text into the screen',
+    usage: 'echo <text>',
+    run(suffix, f, res) {
       f.stdio.onwrite(suffix);
 
       return res(0);
     },
   },
-  'clear': {
-    'description': 'Clear the display',
-    'usage':       'clear',
-    run (a, f, res) {
+  clear: {
+    description: 'Clear the display',
+    usage: 'clear',
+    run(a, f, res) {
       f.stdio.clear();
 
       return res(0);
     },
   },
-  'help': {
-    'description': 'Show this message or show usage of the command =)',
-    'usage':       'help <command>',
-    run (_args, f, res) {
+  help: {
+    description: 'Show this message or show usage of the command =)',
+    usage: 'help <command>',
+    run(_args, f, res) {
       let args = _args.trim();
 
       if (!args) {
@@ -96,10 +97,10 @@ const cmds = {
       return res(0);
     },
   },
-  'dns': {
-    'description': 'Get DNS namespace from url',
-    'usage':       'dns <url>',
-    run (_args, env, cb) {
+  dns: {
+    description: 'Get DNS namespace from url',
+    usage: 'dns <url>',
+    run(_args, env, cb) {
       const $ = env.stdio;
       const args = _args.trim();
 
@@ -129,30 +130,30 @@ const cmds = {
       });
     },
   },
-  'time': {
-    'description': 'Display the current time',
-    'usage':       'time',
-    run (a, f, res) {
+  time: {
+    description: 'Display the current time',
+    usage: 'time',
+    run(a, f, res) {
       f.stdio.setColor('yellow');
       f.stdio.writeLine(`${(new Date()).toLocaleTimeString()}`);
 
       return res(0);
     },
   },
-  'date': {
-    'description': 'Display the current date',
-    'usage':       'date',
-    run (a, f, res) {
+  date: {
+    description: 'Display the current date',
+    usage: 'date',
+    run(a, f, res) {
       f.stdio.setColor('yellow');
       f.stdio.writeLine(`${(new Date()).toDateString()}`);
 
       return res(0);
     },
   },
-  'install': {
-    'description': 'Install applications',
-    'usage':       'install <app>',
-    run (app, f, res) {
+  install: {
+    description: 'Install applications',
+    usage: 'install <app>',
+    run(app, f, res) {
       if ($$.appman.install(app.trim())) {
         f.stdio.setColor('green');
         f.stdio.writeLine(`App ${app} installed successful!`);
@@ -164,10 +165,10 @@ const cmds = {
       return res(1);
     },
   },
-  'speaker': {
-    'description': 'Beep',
-    'usage':       'speaker <play/stop> <frecuency> <duration>',
-    run (_args, f, res) {
+  speaker: {
+    description: 'Beep',
+    usage: 'speaker <play/stop> <frecuency> <duration>',
+    run(_args, f, res) {
       const args = _args.split(/\s+/);
       const mode = args[0];
       const frec = Number(args[1]) || 1000;
@@ -189,10 +190,10 @@ const cmds = {
       return res(1);
     },
   },
-  'listparts': {
-    'description': 'List HDD partitions',
-    'usage':       'listparts <device>',
-    run (_args, f, res) {
+  listparts: {
+    description: 'List HDD partitions',
+    usage: 'listparts <device>',
+    run(_args, f, res) {
       // debug(JSON.stringify($$.block.devices));
       const args = _args.trim();
       let iface;
@@ -237,10 +238,10 @@ const cmds = {
         });
     },
   },
-  'ls': {
-    'description': 'List files in directory',
-    'usage':       'ls /<drive>/<partition>',
-    run (args, f, res) {
+  ls: {
+    description: 'List files in directory',
+    usage: 'ls /<drive>/<partition>',
+    run(args, f, res) {
       const fs = require('fs');
       // const filesize = require('../../utils/filesize');
 
@@ -263,13 +264,13 @@ const cmds = {
         }).then(fileList => {
           for (const name of fileList) f.stdio.writeLine(name);
           res(0);
-        });*/
+        }); */
     },
   },
-  'cat': {
-    'description': 'Show file contents',
-    'usage':       'cat <file>',
-    run (args, f, res) {
+  cat: {
+    description: 'Show file contents',
+    usage: 'cat <file>',
+    run(args, f, res) {
       const fs = require('fs');
 
       fs.readFile(args, 'utf8', (err, data) => {
@@ -284,10 +285,10 @@ const cmds = {
       });
     },
   },
-  'mkdir': {
-    'description': 'Make directory',
-    'usage':       'mkdir <path>',
-    run (args, f, res) {
+  mkdir: {
+    description: 'Make directory',
+    usage: 'mkdir <path>',
+    run(args, f, res) {
       const fs = require('fs');
 
       fs.mkdir(args, (err) => {
@@ -300,10 +301,10 @@ const cmds = {
       });
     },
   },
-  'wget': {
-    'description': 'Print data from HTTP request',
-    'usage':       'wget <url>',
-    run (args, f, result) {
+  wget: {
+    description: 'Print data from HTTP request',
+    usage: 'wget <url>',
+    run(args, f, result) {
       const http = require('http');
 
       try {
@@ -323,10 +324,10 @@ const cmds = {
       }
     },
   },
-  'meminfo': {
-    'description': 'Information about RAM',
-    'usage':       'meminfo',
-    run (args, f, res) {
+  meminfo: {
+    description: 'Information about RAM',
+    usage: 'meminfo',
+    run(args, f, res) {
       const info = __SYSCALL.memoryInfo();
 
       f.stdio.writeLine(`MEM:  ${
@@ -343,10 +344,10 @@ const cmds = {
       return res(0);
     },
   },
-  'jsmb': {
-    'description': 'Initialize global jsmb variable',
-    'usage':       'jsmb',
-    run (args, f, res) {
+  jsmb: {
+    description: 'Initialize global jsmb variable',
+    usage: 'jsmb',
+    run(args, f, res) {
       global.jsmb = require('../../core/graphics/jsmb-pseudo');
       f.stdio.writeLine('JsMobileBasic initialized!');
 

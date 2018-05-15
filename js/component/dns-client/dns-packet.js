@@ -17,17 +17,18 @@
 const assert = require('assert');
 const isDomain = require('./is-domain');
 const PacketReader = require('./packet-reader');
+
 const randomId = 0x3322;
 
 const queries = {
-  'A':     0x01,
-  'NS':    0x02,
-  'CNAME': 0x05,
-  'PTR':   0x0C,
-  'MX':    0x0F,
-  'SRV':   0x21,
-  'SOA':   0x06,
-  'TXT':   0x0A,
+  A: 0x01,
+  NS: 0x02,
+  CNAME: 0x05,
+  PTR: 0x0C,
+  MX: 0x0F,
+  SRV: 0x21,
+  SOA: 0x06,
+  TXT: 0x0A,
 };
 
 exports.getQuery = (domain, query) => {
@@ -72,11 +73,11 @@ exports.getQuery = (domain, query) => {
 
 const POINTER_VALUE = 0xc0;
 
-function isPointer (value) {
+function isPointer(value) {
   return (value & POINTER_VALUE) === POINTER_VALUE;
 }
 
-function readHostname (reader) {
+function readHostname(reader) {
   let labels = [];
 
   for (let z = reader.getOffset(); z < reader.len; ++z) {
@@ -154,22 +155,22 @@ exports.parseResponse = (u8) => {
         }
 
         results.push({
-          'hostname': host,
-          'record':   'A',
-          'address':  [
+          hostname: host,
+          record: 'A',
+          address: [
             reader.readUint8(),
             reader.readUint8(),
             reader.readUint8(),
-            reader.readUint8()
+            reader.readUint8(),
           ],
           ttl,
         });
         break;
       case queries.CNAME: // CNAME record
         results.push({
-          'hostname': host,
-          'record':   'CNAME',
-          'name':     readHostname(reader).join('.'),
+          hostname: host,
+          record: 'CNAME',
+          name: readHostname(reader).join('.'),
         });
         break;
       default:

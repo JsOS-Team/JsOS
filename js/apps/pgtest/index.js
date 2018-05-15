@@ -9,12 +9,15 @@ const UI = require('../../core/tty/pseudo-graphics');
 const scw = JsMB.screenWidth();
 const sch = JsMB.screenHeight();
 
-let io, resp, kb, window;
+let io,
+  resp,
+  kb,
+  window;
 
 let page = 0;
 let demonstration = false;
 
-function draw () {
+function draw() {
   window = new UI.Window('Pseudo-GUI Demonstration');
 
   const startbtn = new UI.Button('Start');
@@ -32,7 +35,7 @@ function draw () {
   window.addButton(exitbtn);
 }
 
-function sdraw () {
+function sdraw() {
   if (!demonstration) return;
   JsMB
     .cls()
@@ -82,7 +85,7 @@ function sdraw () {
   }
 }
 
-function onKeyDown (key) {
+function onKeyDown(key) {
   switch (key.type) {
     case 'f12':
       return exit();
@@ -103,7 +106,7 @@ function onKeyDown (key) {
   sdraw();
 }
 
-function exit () {
+function exit() {
   page = 0;
   kb.onKeydown.remove(onKeyDown);
   JsMB.cls();
@@ -111,7 +114,7 @@ function exit () {
   return resp(0);
 }
 
-function main (api, res) {
+function main(api, res) {
   io = api.stdio;
   kb = api.keyboard;
   resp = res;

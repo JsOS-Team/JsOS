@@ -8,7 +8,7 @@ let hex2rgbString = require('rgb'),
 
 let mauve;
 
-function getPrefix (scheme) {
+function getPrefix(scheme) {
   // Handle the CSS here TODO: bold
   return `<span style="${
     scheme.fg ? `color:${scheme.fg};` : ''
@@ -66,7 +66,7 @@ mauve.set = function (name, color) {
       case 'bold':
         misc = '\u001B\u0001';
         this.hash[name] = {
-          'misc': 'bold',
+          misc: 'bold',
           name,
         };
         break;
@@ -144,7 +144,7 @@ mauve.set = function (name, color) {
   }
 };
 
-function hex2Address (hex) {
+function hex2Address(hex) {
   const rgb = hex2rgbString(hex);
   const nums = rgbRegExp.exec(rgb);
 

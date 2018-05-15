@@ -5,7 +5,7 @@
 const driverUtils = require('../../core/driver-utils');
 
 class ATA {
-  constructor (firstPort, interrupt, isSlave) {
+  constructor(firstPort, interrupt, isSlave) {
     this.ports = [];
 
     for (let i = 0; i < 8; i++) {
@@ -16,13 +16,13 @@ class ATA {
     this.isSlave = isSlave;
     this.driveSelect = isSlave ? 0xF0 : 0xE0;
 
-    this.formatInfo = { 'sectorSize': 512 };
+    this.formatInfo = { sectorSize: 512 };
 
     this.read = this.read.bind(this);
     this.isOnline = this.isOnline.bind(this);
     this.write = this.write.bind(this);
   }
-  read (sector, u8) {
+  read(sector, u8) {
     const numSectors = u8.length / 512;
 
     return new Promise((resolve, reject) => {
@@ -39,8 +39,7 @@ class ATA {
 
       while (!(this.ports[7].read8() & 8)) __SYSCALL.halt();
 
-      if (this.ports[7].read8() & 0x1 || this.ports[7].read8() & 0x20)
-        return reject(new Error('I/O error'));
+      if (this.ports[7].read8() & 0x1 || this.ports[7].read8() & 0x20) { return reject(new Error('I/O error')); }
 
       for (let i = 0; i < numSectors * 256; i++) {
         const data = this.ports[0].read16();
@@ -56,7 +55,7 @@ class ATA {
       return resolve(u8);
     });
   }
-  write (sector, u8) {
+  write(sector, u8) {
     const numSectors = u8.length / 512;
 
     console.log(numSectors);
@@ -75,8 +74,7 @@ class ATA {
 
       while (!(this.ports[7].read8() & 8)) __SYSCALL.halt();
 
-      if (this.ports[7].read8() & 0x1 || this.ports[7].read8() & 0x20)
-        return reject(new Error('I/O error'));
+      if (this.ports[7].read8() & 0x1 || this.ports[7].read8() & 0x20) { return reject(new Error('I/O error')); }
 
       for (let i = 0; i < numSectors * 256; i++) {
         const data = u8[i * 2] | u8[i * 2 + 1] << 8;
@@ -90,7 +88,7 @@ class ATA {
       return resolve(u8);
     });
   }
-  isOnline () {
+  isOnline() {
     return true; // TODO: really check if online
   }
 }
@@ -105,4 +103,4 @@ $$.block.registerDevice(new $$.block.BlockDeviceInterface('hd', new ATA(0x170, 1
 /* $$.block.registerDevice(new $$.block.BlockDeviceInterface('hd', new ATA(0x1E8, false)));
 $$.block.registerDevice(new $$.block.BlockDeviceInterface('hd', new ATA(0x1E8, true)));
 $$.block.registerDevice(new $$.block.BlockDeviceInterface('hd', new ATA(0x168, false)));
-$$.block.registerDevice(new $$.block.BlockDeviceInterface('hd', new ATA(0x168, true)));*/
+$$.block.registerDevice(new $$.block.BlockDeviceInterface('hd', new ATA(0x168, true))); */

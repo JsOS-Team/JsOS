@@ -16,7 +16,10 @@
 'use strict';
 
 const terminal = require('./terminal');
-const { DARKGRAY, BLACK, YELLOW, GREEN, LIGHTGRAY } = terminal.color;
+
+const {
+  DARKGRAY, BLACK, YELLOW, GREEN, LIGHTGRAY,
+} = terminal.color;
 
 terminal.print(`
 
@@ -32,6 +35,7 @@ terminal.print(`
 terminal.print('\n Welcome to ', 1, LIGHTGRAY, BLACK);
 terminal.print('JsOS ', 1, GREEN, BLACK);
 terminal.print(`version ${require('../../../package.json').version}\n`, 1, DARKGRAY, BLACK);
+
 terminal.print(' Type', 1, LIGHTGRAY, BLACK);
 terminal.print(' help ', 1, YELLOW, BLACK);
 terminal.print('to get list of commands\n\n', 1, LIGHTGRAY, BLACK);

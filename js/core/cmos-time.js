@@ -18,6 +18,7 @@
 'use strict';
 
 const resources = require('./resources');
+
 const ports = resources.ioRange;
 
 let second = 0;
@@ -33,13 +34,13 @@ const cmosData = 0x71;
 const port = ports.port(cmosAddress);
 const dataPort = ports.port(cmosData);
 
-function getUpdateInProgressFlag () {
+function getUpdateInProgressFlag() {
   port.write8(0x0A);
 
   return dataPort.read8() & 0x80;
 }
 
-function getRTCRegister (reg) {
+function getRTCRegister(reg) {
   port.write8(reg);
 
   return dataPort.read8();

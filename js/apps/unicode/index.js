@@ -3,9 +3,12 @@
 
 'use strict';
 
-let io, kb, resp, interval;
+let io,
+  kb,
+  resp,
+  interval;
 
-function main (api, res) {
+function main(api, res) {
   io = api.stdio;
   kb = api.keyboard;
   resp = res;
@@ -23,7 +26,7 @@ function main (api, res) {
   return res(0); // 1 = error
 }
 
-function keylog (key) {
+function keylog(key) {
   if (key.type === 'f12') {
     clearInterval(interval);
     kb.onKeydown.remove(keylog);

@@ -18,6 +18,7 @@ const isaac = require('./isaac-wrapper');
 const EntropySource = require('./entropy-source');
 const sources = require('./sources');
 const typeutils = require('typeutils');
+
 const getDefaultSource = sources.getDefaultSource;
 
 require('./js-random-source');

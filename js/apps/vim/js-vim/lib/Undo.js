@@ -10,7 +10,6 @@ const Undo = module.exports = function () {
  * Undo.add is not used when you have completed a change, but when you are about to initiate a change. Therefore it's appropriate that insert the state at your current position, then increment position into a state that is not defined in _history.
  */
 Undo.prototype.add = function (ev) {
-
   // Don't add additional identical states.
   if (this.position && typeof ev !== 'string' && 'cursor' in ev && 'text' in ev) {
     const current = this._history.slice(this.position - 1, this.position)[0];
@@ -29,7 +28,7 @@ Undo.prototype.add = function (ev) {
   return true;
 };
 
-function areSame (ev1, ev2) {
+function areSame(ev1, ev2) {
   return ev1.text === ev2.text;
 }
 

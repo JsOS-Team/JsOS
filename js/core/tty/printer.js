@@ -16,6 +16,7 @@
 'use strict';
 
 const vga = require('./vga');
+
 const buffer = vga.allocBuffer();
 
 const w = vga.WIDTH;
@@ -26,7 +27,7 @@ const tmpcolor = [vga.color.WHITE, vga.color.BLACK];
 const { color } = vga;
 
 class Printer {
-  constructor () {
+  constructor() {
     {
       this.refresh = this.refresh.bind(this);
       this.scrollUp = this.scrollUp.bind(this);
@@ -42,31 +43,31 @@ class Printer {
     this.refresh();
   }
 
-  get color () {
+  get color() {
     return color;
   }
 
-  refresh () {
+  refresh() {
     vga.draw(buffer);
   }
 
-  scrollUp () {
+  scrollUp() {
     buffer.scrollUp(vga.color.BLACK);
     posCurrent -= w;
   }
 
-  scrollDown () {
+  scrollDown() {
     buffer.scrollDown(vga.color.BLACK);
     posCurrent -= w;
   }
 
-  clear (color = vga.color.BLACK) {
+  clear(color = vga.color.BLACK) {
     buffer.clear(color);
     posCurrent = 0;
     this.refresh();
   }
 
-  fill (color) {
+  fill(color) {
     return this.clear(color);
   }
 
@@ -80,7 +81,7 @@ class Printer {
    * @param {array} [setcolor] - Color values to control
    * @returns {bool} true - it's a control symbol; false - no
    */
-  useControls (symbol, prevsymbol = '\0', setcolor = tmpcolor) {
+  useControls(symbol, prevsymbol = '\0', setcolor = tmpcolor) {
     const code = symbol.charCodeAt();
 
     if (code >= 0x0 && code <= 0xF && prevsymbol.charCodeAt() === 0x1B) {
@@ -103,7 +104,7 @@ class Printer {
     }
   }
 
-  print (textOpt = '', repeat = 1, fg = tmpcolor[0], bg = tmpcolor[1]) {
+  print(textOpt = '', repeat = 1, fg = tmpcolor[0], bg = tmpcolor[1]) {
     const text = String(textOpt);
     const currentcolor = [fg, bg];
 
@@ -130,7 +131,7 @@ class Printer {
     this.refresh();
   }
 
-  moveOffset (offsetOpt) {
+  moveOffset(offsetOpt) {
     const offset = offsetOpt | 0;
     let newPos = posCurrent + offset;
 
@@ -145,7 +146,7 @@ class Printer {
     posCurrent = newPos;
   }
 
-  moveTo (xOpt, yOpt) {
+  moveTo(xOpt, yOpt) {
     let x = xOpt;
     let y = yOpt;
 

@@ -19,7 +19,7 @@ const typeutils = require('typeutils');
 const isint = require('isint');
 
 class PciDevice {
-  constructor (opts) {
+  constructor(opts) {
     assert(typeutils.isObject(opts));
     assert(isint.uint16(opts.vendorId));
     assert(isint.uint16(opts.deviceId));
@@ -41,42 +41,42 @@ class PciDevice {
 
     this.driver = null;
   }
-  getBAR (index) {
+  getBAR(index) {
     assert(Number.isInteger(index) && index >= 0 && index <= 6);
 
     return this.bars[index] || null;
   }
-  getIRQ () {
+  getIRQ() {
     return this.irq;
   }
-  setPciCommandFlag (flag) {
+  setPciCommandFlag(flag) {
     assert(Number.isInteger(flag) && flag >= 0 && flag < 16);
     let t = this.pciAccessor.read(this.pciAccessor.fields().COMMAND);
 
     t |= 1 << flag >>> 0;
     this.pciAccessor.write(this.pciAccessor.fields().COMMAND, t);
   }
-  setDriver (driver) {
+  setDriver(driver) {
     assert(typeutils.isObject(driver));
     assert(typeutils.isFunction(driver.init));
     this.driver = driver;
     driver.init(this);
   }
-  hasDriver () {
+  hasDriver() {
     return this.driver !== null;
   }
-  static get commandFlag () {
+  static get commandFlag() {
     return {
-      'IOSpace':               0,
-      'MemorySpace':           1,
-      'BusMaster':             2,
-      'SpecialCycles':         3,
-      'MemoryWriteInvalidate': 4,
-      'VGAPaletteSnoop':       5,
-      'ParityError':           6,
-      'SERR':                  8,
-      'BackToBack':            9,
-      'InterruptDisable':      10,
+      IOSpace: 0,
+      MemorySpace: 1,
+      BusMaster: 2,
+      SpecialCycles: 3,
+      MemoryWriteInvalidate: 4,
+      VGAPaletteSnoop: 5,
+      ParityError: 6,
+      SERR: 8,
+      BackToBack: 9,
+      InterruptDisable: 10,
     };
   }
 }

@@ -21,19 +21,19 @@ const { Uint64LE } = require('int64-buffer');
 const VIRTIO_BLK_T_IN = 0;
 const VIRTIO_BLK_T_OUT = 1;
 
-function initializeBlockDevice (pciDevice) {
+function initializeBlockDevice(pciDevice) {
   const ioSpace = pciDevice.getBAR(0).resource;
   const irq = pciDevice.getIRQ();
 
   const features = {
-    'VIRTIO_BLK_F_SIZE_MAX':   1,
-    'VIRTIO_BLK_F_SEG_MAX':    2,
-    'VIRTIO_BLK_F_GEOMETRY':   4,
-    'VIRTIO_BLK_F_RO':         5,
-    'VIRTIO_BLK_F_BLK_SIZE':   6,
-    'VIRTIO_BLK_F_FLUSH':      9,
-    'VIRTIO_BLK_F_TOPOLOGY':   10,
-    'VIRTIO_BLK_F_CONFIG_WCE': 11,
+    VIRTIO_BLK_F_SIZE_MAX: 1,
+    VIRTIO_BLK_F_SEG_MAX: 2,
+    VIRTIO_BLK_F_GEOMETRY: 4,
+    VIRTIO_BLK_F_RO: 5,
+    VIRTIO_BLK_F_BLK_SIZE: 6,
+    VIRTIO_BLK_F_FLUSH: 9,
+    VIRTIO_BLK_F_TOPOLOGY: 10,
+    VIRTIO_BLK_F_CONFIG_WCE: 11,
   };
 
   const dev = new VirtioDevice('blk', ioSpace);
@@ -42,10 +42,10 @@ function initializeBlockDevice (pciDevice) {
 
   const driverFeatures = {
     // VIRTIO_BLK_F_SIZE_MAX: true,
-    'VIRTIO_BLK_F_SEG_MAX':  true,
-    'VIRTIO_BLK_F_GEOMETRY': true,
-    'VIRTIO_BLK_F_BLK_SIZE': true,
-    'VIRTIO_BLK_F_TOPOLOGY': true,
+    VIRTIO_BLK_F_SEG_MAX: true,
+    VIRTIO_BLK_F_GEOMETRY: true,
+    VIRTIO_BLK_F_BLK_SIZE: true,
+    VIRTIO_BLK_F_TOPOLOGY: true,
   };
 
   const deviceFeatures = dev.readDeviceFeatures(features);
@@ -67,7 +67,7 @@ function initializeBlockDevice (pciDevice) {
   const sectorCount = dev.blkReadSectorCount();
   const totalSectorCount = dev.blkReadTotalSectorCount();
 
-  function buildHeader (type, sector) {
+  function buildHeader(type, sector) {
     const u8 = new Uint8Array(16);
     const view = new DataView(u8.buffer);
 
@@ -79,14 +79,10 @@ function initializeBlockDevice (pciDevice) {
   }
 
   const diskDriver = new runtime.block.BlockDeviceInterface('virtio', {
-    read (sector, data) {
+    read(sector, data) {
       return new Promise((resolve, reject) => {
         if (sector > totalSectorCount) {
-          reject(
-            new RangeError(
-              `sector ${sector} out of bounds (max ${totalSectorCount}, non-inclusive)`
-            )
-          );
+          reject(new RangeError(`sector ${sector} out of bounds (max ${totalSectorCount}, non-inclusive)`));
 
           return;
         }
@@ -96,7 +92,7 @@ function initializeBlockDevice (pciDevice) {
         reqQueue.placeBuffers(
           [buildHeader(VIRTIO_BLK_T_IN, sector), data, status],
           false,
-          [false, true, true]
+          [false, true, true],
         );
 
         if (reqQueue.isNotificationNeeded()) {
@@ -104,7 +100,7 @@ function initializeBlockDevice (pciDevice) {
         }
       });
     },
-    write (sector, data) {
+    write(sector, data) {
       return new Promise((resolve, reject) => {
         const status = new Uint8Array(1);
 
@@ -112,7 +108,7 @@ function initializeBlockDevice (pciDevice) {
         reqQueue.placeBuffers(
           [buildHeader(VIRTIO_BLK_T_OUT, sector), data, status],
           false,
-          [false, false, true]
+          [false, false, true],
         );
 
         if (reqQueue.isNotificationNeeded()) {
@@ -120,19 +116,19 @@ function initializeBlockDevice (pciDevice) {
         }
       });
     },
-    'formatInfo': {
+    formatInfo: {
       sectorSize,
       sectorCount,
       totalSectorCount,
     },
-    isOnline () {
+    isOnline() {
       return true; // TODO: actually check if the disk is online or not
     },
   });
 
   runtime.block.registerDevice(diskDriver);
 
-  function recvBuffer () {
+  function recvBuffer() {
     if (promiseQueue.length === 0) {
       return;
     }

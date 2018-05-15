@@ -16,11 +16,11 @@
 'use strict';
 
 const PERSISTENCE = {
-  'Editor': {
-    'history':         [],
-    'historyPosition': 0,
+  Editor: {
+    history: [],
+    historyPosition: 0,
   },
-  'Apps': { '_commands': {}},
+  Apps: { _commands: {} },
 };
 
 global.PERSISTENCE = module.exports = PERSISTENCE;

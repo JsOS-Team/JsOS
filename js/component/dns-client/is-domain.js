@@ -15,6 +15,7 @@
 'use strict';
 
 const typeutils = require('typeutils');
+
 const domainRegex = /^[a-z0-9.-]+$/;
 
 module.exports = (domain) => {

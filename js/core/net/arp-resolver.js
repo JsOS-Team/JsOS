@@ -21,11 +21,11 @@ const arpTransmit = require('./arp-transmit');
 const arpHeader = require('./arp-header');
 
 class ARPResolver {
-  constructor (intf) {
+  constructor(intf) {
     this.intf = intf;
     this.table = new Map();
   }
-  receive (u8, headerOffset) {
+  receive(u8, headerOffset) {
     const operation = arpHeader.getOperation(u8, headerOffset);
     const srcMAC = arpHeader.getSrcMAC(u8, headerOffset);
     const srcIP = arpHeader.getSrcIP(u8, headerOffset);
@@ -49,17 +49,21 @@ class ARPResolver {
         break;
     }
   }
-  request (targetIP) {
-    arpTransmit(this.intf, arpHeader.OPERATION_REQEUST,
+  request(targetIP) {
+    arpTransmit(
+      this.intf, arpHeader.OPERATION_REQEUST,
       this.intf.macAddr, this.intf.ipAddr,
-      MACAddress.ZERO, targetIP);
+      MACAddress.ZERO, targetIP,
+    );
   }
-  reply (targetMAC, targetIP) {
-    arpTransmit(this.intf, arpHeader.OPERATION_REPLY,
+  reply(targetMAC, targetIP) {
+    arpTransmit(
+      this.intf, arpHeader.OPERATION_REPLY,
       this.intf.macAddr, this.intf.ipAddr,
-      targetMAC, targetIP);
+      targetMAC, targetIP,
+    );
   }
-  get (ip) {
+  get(ip) {
     return this.table.get(ip.hash()) || null;
   }
 }

@@ -17,10 +17,10 @@ const Doc = function (obj) {
   this._text = '';
   this._lines = [];
   this.undo.add({
-    'text':   '',
-    'cursor': {
-      'char': 0,
-      'line': 0,
+    text: '',
+    cursor: {
+      char: 0,
+      line: 0,
     },
   });
   this._marks = {};
@@ -221,7 +221,7 @@ Doc.prototype.insert = function (text) {
   pos.mark = '.';
   this.addMark(pos);
 
-  this.set({ 'text': this._lines.join('\n') });
+  this.set({ text: this._lines.join('\n') });
   this.trigger('change');
 };
 
@@ -285,7 +285,7 @@ Doc.prototype.remove = function (range) {
   this.addMark(pos);
 
 
-  this.set({ 'text': this._lines.join('\n') });
+  this.set({ text: this._lines.join('\n') });
 };
 
 /* Finds the next instance of that exp, returning a range */
@@ -347,9 +347,9 @@ Doc.prototype.find = function (exp, opts) {
 
   if (curIndex > -1) {
     return {
-      'line':  this.cursor.line(),
-      'char':  curIndex,
-      'found': true,
+      line: this.cursor.line(),
+      char: curIndex,
+      found: true,
     };
   }
 
@@ -362,9 +362,9 @@ Doc.prototype.find = function (exp, opts) {
 
       if (foundAt > -1) {
         return {
-          'line':  lineIndex,
-          'char':  foundAt,
-          'found': true,
+          line: lineIndex,
+          char: foundAt,
+          found: true,
         };
       }
       lineIndex += backwards ? -1 : 1;
@@ -381,15 +381,15 @@ Doc.prototype.find = function (exp, opts) {
 
 Doc.prototype.lastPosition = function () {
   return {
-    'line': this._lines.length - 1,
-    'char': this._lines[this._lines.length - 1].length - 1,
+    line: this._lines.length - 1,
+    char: this._lines[this._lines.length - 1].length - 1,
   };
 };
 
 Doc.prototype.firstPosition = function () {
   return {
-    'line': 0,
-    'char': 0,
+    line: 0,
+    char: 0,
   };
 };
 
@@ -397,7 +397,7 @@ Doc.prototype.firstPosition = function () {
 /** Check a string for a regular expression, indicating where in the string the match begins. -1 for false
  */
 
-function checkString (exp, str, offset, backwards) {
+function checkString(exp, str, offset, backwards) {
   // Because of the lastIndex use the expression needs to be global
   if (!exp.global) throw 'Regular expressions need to be global here';
 
@@ -447,8 +447,8 @@ Doc.prototype.selection = function (range) {
   } else if (!_selection) { // Set as cursor position if none
     const pos = this.cursor.position();
     const end = {
-      'line': pos.line,
-      'char': pos.char + 1,
+      line: pos.line,
+      char: pos.char + 1,
     };
 
     return [pos, end];
@@ -458,7 +458,7 @@ Doc.prototype.selection = function (range) {
 };
 
 
-function isRange (range) {
+function isRange(range) {
   if (!('line' in range[0]) && _(range[0]).isArray()) {
     let areRanges = true;
 
@@ -495,9 +495,9 @@ Doc.prototype.exec = function () {
 
 Doc.prototype.toJSON = function () {
   return {
-    'text':      this.text(),
-    'cursor':    this.cursor.position(),
-    'selection': this.selection(),
+    text: this.text(),
+    cursor: this.cursor.position(),
+    selection: this.selection(),
   };
 };
 

@@ -21,6 +21,7 @@ if (!global.__SYSCALL) {
 }
 
 const requiredKernelVersion = require('../runtimecorelib.json').kernelVersion;
+
 const currentKernelVersion = __SYSCALL.version().kernel;
 
 if (currentKernelVersion !== requiredKernelVersion) {

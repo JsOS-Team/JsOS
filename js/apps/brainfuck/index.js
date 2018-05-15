@@ -7,9 +7,10 @@
 'use strict';
 
 const Brainfuck = require('./interpreter');
+
 let io;
 
-function main (_args, api, res) {
+function main(_args, api, res) {
   const args = _args.split(/\s+/);
 
   io = api.stdio;

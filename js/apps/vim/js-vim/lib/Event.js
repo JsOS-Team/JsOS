@@ -39,7 +39,7 @@ module.exports.prototype.trigger = function (name, arg1, arg2 /** ... */) {
 
   // So we can efficiently apply below
 
-  function triggerFunction (fn) {
+  function triggerFunction(fn) {
     fn.apply(this, args);
   }
 

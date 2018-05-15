@@ -40,14 +40,14 @@ const names = [
   'NOTINITIALIZED',
   'LOADIPHLPAPI',
   'ADDRGETNETWORKPARAMS',
-  'CANCELLED'
+  'CANCELLED',
 ];
 
 for (const name of names) exports[name] = `E${name}`;
 
 const servers = ['8.8.8.8'];
 
-function throwIPv6Err (cb) {
+function throwIPv6Err(cb) {
   const err = new SystemError('JsOS doesn\'t support IPv6', exports.BADFAMILY);
 
   if (cb) {
@@ -56,7 +56,7 @@ function throwIPv6Err (cb) {
   throw err;
 }
 
-function lookup (hostname, opts, cb) {
+function lookup(hostname, opts, cb) {
   if (opts.family && opts.family === 6) {
     return throwIPv6Err(cb);
   }
@@ -73,15 +73,15 @@ function lookup (hostname, opts, cb) {
     } else if (cb) {
       cb(null, [
         {
-          'address': '127.0.0.1',
-          'family':  4,
-        }
+          address: '127.0.0.1',
+          family: 4,
+        },
       ]);
     }
 
     return;
   }
-  $$.dns.resolve(hostname, { 'query': opts.query }, (err, data) => {
+  $$.dns.resolve(hostname, { query: opts.query }, (err, data) => {
     if (err) {
       if (cb) {
         cb(err, null, null);
@@ -94,7 +94,7 @@ function lookup (hostname, opts, cb) {
     for (const i of [...data.results.keys()]) {
       const res = data.results[i];
 
-      if(!res.address) {
+      if (!res.address) {
         continue;
       }
 
@@ -111,8 +111,8 @@ function lookup (hostname, opts, cb) {
             ret.push(res.address.join('.'));
           } else {
             ret.push({
-              'address': res.address.join('.'),
-              'family':  4,
+              address: res.address.join('.'),
+              family: 4,
             });
           }
           break;
@@ -147,15 +147,15 @@ exports.lookup = (hostname, optsOpt, cbOpt) => {
   }
   if (typeof opts === 'undefined' || opts === null) opts = {};
   if (typeof opts === 'number' || opts instanceof Number) {
-    opts = { 'family': opts };
+    opts = { family: opts };
   }
 
   return lookup(hostname, opts, cb);
 };
 
 exports.resolve4 = (hostname, cb) => lookup(hostname, {
-  'all':      true,
-  'addrOnly': true,
+  all: true,
+  addrOnly: true,
 }, cb);
 
 exports.resolve6 = (hostname, cb) => throwIPv6Err(cb);

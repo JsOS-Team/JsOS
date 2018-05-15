@@ -21,7 +21,7 @@ const printer = require('../core/tty/printer');
 /* eslint-disable no-console */
 
 class Console {
-  constructor (stdout, stderr) {
+  constructor(stdout, stderr) {
     if (!stdout || !(stdout instanceof stream.Writable) && !(stdout instanceof stream.Duplex)) {
       throw new TypeError('Console expects a writable stream instance');
     }
@@ -34,33 +34,33 @@ class Console {
     }
     this._labels = {};
   }
-  assert (val, ...data) {
+  assert(val, ...data) {
     if (!val) {
       throw new Error(util.format(...data));
     }
   }
-  dir (obj, optsOpt = {}) {
+  dir(obj, optsOpt = {}) {
     const opts = optsOpt;
 
     opts.customInspect = true;
     this._stdout.write(util.inspect(obj, opts));
   }
-  error (...data) {
+  error(...data) {
     const out = this._stderr || this._stdout;
 
     out.write(`${util.format(...data)}\n`);
   }
-  log (...data) {
+  log(...data) {
     this._stdout.write(`${util.format(...data)}\n`);
   }
-  time (label = 'undefined') {
+  time(label = 'undefined') {
     this._labels[label] = Date.now();
   }
-  timeEnd (label = 'undefined') {
+  timeEnd(label = 'undefined') {
     if (!this._labels[label]) process.emitWarning(`No such label ${label} for console.timeEnd()`);
     this._stdout.write(`${label}: ${Date.now() - this._labels[label]}ms\n`);
   }
-  trace (...data) {
+  trace(...data) {
     let trace = (new Error()).stack;
     const arr = trace.split('\n');
 
@@ -69,17 +69,17 @@ class Console {
     trace = arr.join('\n');
     this._stdout.write(`${trace}\n`);
   }
-  info (...data) {
+  info(...data) {
     this.log(...data);
   }
-  warn (...data) {
+  warn(...data) {
     this.error(...data);
   }
-  print (...data) {
+  print(...data) {
     printer.print(...data);
     this.log(...data);
   }
-  printDir (obj, optsOpt) {
+  printDir(obj, optsOpt) {
     const opts = optsOpt;
 
     opts.customInspect = true;
@@ -98,7 +98,7 @@ const bound = [
   'timeEnd',
   'trace',
   'info',
-  'warn'
+  'warn',
 ];
 
 for (const item of bound) {

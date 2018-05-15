@@ -20,10 +20,10 @@ const { registerDevice, getDevices, getBuses } = require('./devices');
 module.exports = {
   BlockDeviceInterface,
   registerDevice,
-  get 'devices' () {
+  get devices() {
     return getDevices();
   },
-  get 'buses' () {
+  get buses() {
     return getBuses();
   },
 };

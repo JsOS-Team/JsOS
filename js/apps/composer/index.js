@@ -9,7 +9,7 @@
 // const Interface = require('./Interface'); //TODO: Interface
 const Sound = require('./Sound');
 
-function main (api, res, args) {
+function main(api, res, args) {
   const io = api.stdio;
 
   io.setColor('pink');

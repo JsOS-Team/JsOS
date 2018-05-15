@@ -3,14 +3,14 @@
 const fatfs = require('./fatfs');
 
 class Partition {
-  getFilesystem () {
+  getFilesystem() {
     const device = this.device;
     const address = this.address;
     const size = this.size;
     const driver = {
-      'sectorSize': device.formatInfo.sectorSize,
-      'numSectors': size,
-      readSectors (sector, dest, callback) {
+      sectorSize: device.formatInfo.sectorSize,
+      numSectors: size,
+      readSectors(sector, dest, callback) {
         device.read(address + sector, dest).then(() => {
           callback();
         })
@@ -18,7 +18,7 @@ class Partition {
             callback(err);
           });
       },
-      writeSectors (sector, data, callback) {
+      writeSectors(sector, data, callback) {
         device.write(address + sector, data).then(() => {
           callback();
         })
@@ -32,7 +32,7 @@ class Partition {
   }
 }
 
-function getDeviceByName (name) {
+function getDeviceByName(name) {
   let iface = null;
 
   for (const device of $$.block.devices) {
@@ -43,8 +43,8 @@ function getDeviceByName (name) {
   return iface;
 }
 
-function getPartitions (device) {
-  return device.read(0, Buffer.allocUnsafe(device.formatInfo.sectorSize)).then((_buf) => new Promise((resolve) => {
+function getPartitions(device) {
+  return device.read(0, Buffer.allocUnsafe(device.formatInfo.sectorSize)).then(_buf => new Promise((resolve) => {
     const partitions = [];
     const buf = _buf.slice(0x1BE, 0x1BE + 64);
 

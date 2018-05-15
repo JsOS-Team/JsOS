@@ -3,16 +3,15 @@
 let llfs = null;
 
 class PathUtils {
-
   /**
    * @constructor
    * @param  {object} fsapi - Low-level file system API
    */
-  constructor (fsapi) {
+  constructor(fsapi) {
     llfs = fsapi;
   }
 
-  resolvePath (path) {
+  resolvePath(path) {
     const spl = path.split('/');
 
     if (spl[spl.length - 1] === '') spl.pop();
@@ -35,7 +34,7 @@ class PathUtils {
 
     return {
       level,
-      'parts': spl.slice(1),
+      parts: spl.slice(1),
     };
   }
 
@@ -43,7 +42,7 @@ class PathUtils {
    * @param  {string} path - Path
    * @returns {bool} true/false
    */
-  isSystemPath (path) {
+  isSystemPath(path) {
     if (typeof path !== 'string') throw new TypeError('path must be a String');
 
     return path.slice(0, 7) === '/system';
@@ -53,7 +52,7 @@ class PathUtils {
    * @param  {string} path - system path
    * @returns {string} initrd kernel path
    */
-  extractSystemPath (path) {
+  extractSystemPath(path) {
     if (this.isSystemPath(path)) {
       return path.slice(7);
     }

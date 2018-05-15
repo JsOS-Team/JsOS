@@ -10,9 +10,7 @@ const colors = require('./colors.json')
 
 
     return [r, g, b];
-  })
-
-;
+  });
 
 const x256 = module.exports = function (r, g, b) {
   const c = Array.isArray(r) ? r : [r, g, b];
@@ -31,10 +29,8 @@ const x256 = module.exports = function (r, g, b) {
 
 x256.colors = colors;
 
-function distance (a, b) {
-  return Math.sqrt(
-    Math.pow(a[0]-b[0], 2)
-        + Math.pow(a[1]-b[1], 2)
-        + Math.pow(a[2]-b[2], 2)
-  );
+function distance(a, b) {
+  return Math.sqrt(Math.pow(a[0] - b[0], 2)
+        + Math.pow(a[1] - b[1], 2)
+        + Math.pow(a[2] - b[2], 2));
 }

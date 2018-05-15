@@ -7,14 +7,14 @@ const mauve = require('../../mauve');
 // require('./3rd/rainbow/js/language/javascript.js')(rainbow);
 
 mauve.set({
-  'idle':               '#0000ff',
-  'gutter':             '#d75f00',
-  'cursor':             '/#555',
-  'status':             'bold',
-  'entity.function':    '#dc3',
-  'storage':            '#21F',
+  idle: '#0000ff',
+  gutter: '#d75f00',
+  cursor: '/#555',
+  status: 'bold',
+  'entity.function': '#dc3',
+  storage: '#21F',
   'function.anonymous': '#1F1',
-  'selection':          '#000/#fff',
+  selection: '#000/#fff',
 });
 
 /*
@@ -58,8 +58,6 @@ const View = module.exports = function (obj) {
 
   // The line that has focus. For now: line at bottom of screen
   this.focus = 0;
-
-
 };
 
 // Inherit 'on', 'trigger'
@@ -80,7 +78,6 @@ let renderCt = 0;
 
 /* The basic status line */
 View.prototype.refreshStatusLine = function () {
-
   // Some modes just show the name
   if (this.notification) {
     this.status = this.notification;
@@ -102,7 +99,6 @@ View.prototype.refreshStatusLine = function () {
     return this.status = this.vim.keyBuffer;
   }
   this.status = '';
-
 };
 
 View.prototype.getText = function () {
@@ -111,7 +107,7 @@ View.prototype.getText = function () {
   // Do
   /* rainbow.color(text,'javascript', function(newText) {
 		text = newText;
-	});*/
+	}); */
 
   return text;
 };
@@ -154,8 +150,8 @@ View.prototype.getArray = function () {
   }
 
   const cursor = noLines ? {
-    'line': 0,
-    'char': 0,
+    line: 0,
+    char: 0,
   } : this.vim.curDoc.cursor.position();
 
   const visibleCursorIndex = cursor.line - visibleLines[0];
@@ -177,8 +173,8 @@ View.prototype.getArray = function () {
     }
     _(text).each(function (character, charIndex) {
       newText += this.renderChar(character, {
-        'line': lineIndex,
-        'char': charIndex,
+        line: lineIndex,
+        char: charIndex,
       }, cursor, selection);
     }, this);
     newLines[lineIndex] = newText;
@@ -214,31 +210,23 @@ View.prototype.getArray = function () {
   }
 
   return lines;
-
 };
 
 
 /** render a specific character. This is brutal, but simplest way to handle cursor + selection highlighting without stepping on one another's toes.
  */
 
-View.prototype.renderChar = function renderChar (character, position, cursor, selection) {
-
+View.prototype.renderChar = function renderChar(character, position, cursor, selection) {
   // If is cursor, just do that.
-  if (cursor.line === position.line && cursor.char === position.char)
-    return !this.color ? character : mauve(character).cursor;
+  if (cursor.line === position.line && cursor.char === position.char) { return !this.color ? character : mauve(character).cursor; }
   // If is a typical range, show that.
   if ('line' in selection[0]) {
-    if (position.line < selection[0].line || position.line > selection[1].line)
-      return character;
-    if (position.line > selection[0].line && position.line < selection[1].line)
-      return !this.color ? character : mauve(character).selection;
-    if (position.line === selection[0].line && position.line !== selection[1].line && position.char >= selection[0].char)
-      return !this.color ? character : mauve(character).selection;
-    if (position.line === selection[1].line && position.line !== selection[0].line && position.char < selection[1].char)
-      return !this.color ? character : mauve(character).selection;
+    if (position.line < selection[0].line || position.line > selection[1].line) { return character; }
+    if (position.line > selection[0].line && position.line < selection[1].line) { return !this.color ? character : mauve(character).selection; }
+    if (position.line === selection[0].line && position.line !== selection[1].line && position.char >= selection[0].char) { return !this.color ? character : mauve(character).selection; }
+    if (position.line === selection[1].line && position.line !== selection[0].line && position.char < selection[1].char) { return !this.color ? character : mauve(character).selection; }
     if (selection[0].line === selection[1].line && position.line === selection[0].line) {
-      if (position.char >= selection[0].char && position.char < selection[1].char)
-        return !this.color ? character : mauve(character).selection;
+      if (position.char >= selection[0].char && position.char < selection[1].char) { return !this.color ? character : mauve(character).selection; }
     }
   } else {
     // A visual block selection
@@ -301,7 +289,6 @@ View.prototype.getPatch = function (ref) {
   });
 
   return patch;
-
 };
 
 View.prototype.diffLine = function (line1, line2) {
@@ -310,21 +297,25 @@ View.prototype.diffLine = function (line1, line2) {
 
   if (line1 === line2) return [];
   // Clear the line
-  if (!line2 || !line2.length) return [
-    {
-      'from':    0,
-      'to':      line1.length - 1,
-      'content': '',
-    }
-  ];
+  if (!line2 || !line2.length) {
+    return [
+      {
+        from: 0,
+        to: line1.length - 1,
+        content: '',
+      },
+    ];
+  }
   // Write the line
-  if (!line1 || !line1.length) return [
-    {
-      'from':    0,
-      'to':      line2.length - 1,
-      'content': line2,
-    }
-  ];
+  if (!line1 || !line1.length) {
+    return [
+      {
+        from: 0,
+        to: line2.length - 1,
+        content: line2,
+      },
+    ];
+  }
 
   const len = Math.max(line1.length, line2.length);
   let diff = false;
@@ -340,7 +331,6 @@ View.prototype.diffLine = function (line1, line2) {
         diff = false;
       }
       // Otherwise, proceed.
-
     } else { // There is a difference
       // And it's not the first one
       if (diff) {
@@ -349,8 +339,8 @@ View.prototype.diffLine = function (line1, line2) {
       } else { // But if it's the beginning of a diff
         // Start it off.
         diff = {
-          'from':    i,
-          'content': line2[i] ? line2[i] : '',
+          from: i,
+          content: line2[i] ? line2[i] : '',
         };
       }
     }

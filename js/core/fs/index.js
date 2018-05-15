@@ -18,12 +18,15 @@
 
 const llfs = require('./low-level');
 const Utils = require('./utils');
+
 const utils = new Utils(llfs);
 
-const { log, success, error, warn } = $$.logger;
+const {
+  log, success, error, warn,
+} = $$.logger;
 
 module.exports = {
-  readdir (path, options = () => {}, callback = options) {
+  readdir(path, options = () => {}, callback = options) {
     let resolved = null;
 
     if (utils.isSystemPath(path)) {
@@ -39,12 +42,10 @@ module.exports = {
       const find = __SYSCALL.initrdListFiles();
 
       // Set is faster than .filter((value, i, arr) => arr.indexOf(value) === i)
-      const dirs = new Set(
-        find
-          .filter((findPath) => findPath.slice(0, extpath.length + 1) === `${extpath}/`)
-          .map((findPath) => findPath.slice(extpath.length + 1))
-          .map((name) => name.split('/')[0])
-      );
+      const dirs = new Set(find
+        .filter(findPath => findPath.slice(0, extpath.length + 1) === `${extpath}/`)
+        .map(findPath => findPath.slice(extpath.length + 1))
+        .map(name => name.split('/')[0]));
 
       success('OK!', { from: 'FS->readdir->System', level: 'fs' });
       callback(null, Array.from(dirs).sort());
@@ -60,7 +61,7 @@ module.exports = {
       return;
     }
     if (resolved.level === 0) {
-      const devices = $$.block.devices.map((device) => device.name);
+      const devices = $$.block.devices.map(device => device.name);
 
       devices.push('system');
       callback(null, devices);
@@ -76,14 +77,14 @@ module.exports = {
 
           /* if (resolved.level >= 3) {
           callback(new Error('Subdirectories aren\'t supported yet'));
-        }*/
+        } */
           return filesystem.readdir(resolved.parts.slice(2).join('/'), callback);
         })
 
       /* .then(list => {
         if (resolved.level <= 1) return;
         callback(null, list.map(file => file.name), list);
-      })*/
+      }) */
         .catch((err) => {
           callback(err);
         });
@@ -95,7 +96,7 @@ module.exports = {
    * @param  {object} [options] - Options
    * @param  {function} callback - Callback(error, result)
    */
-  readFile (path, options = () => {}, callback = options) {
+  readFile(path, options = () => {}, callback = options) {
     let resolved = null;
 
     if (utils.isSystemPath(path)) {
@@ -119,9 +120,9 @@ module.exports = {
       return;
     }
     if (resolved.level >= 3) {
-      llfs.getPartitions(resolved.parts[0]).then((partitions) => partitions[resolved.parts[1]].getFilesystem())
+      llfs.getPartitions(resolved.parts[0]).then(partitions => partitions[resolved.parts[1]].getFilesystem())
         .then((filesystem) => {
-          filesystem.readFile(resolved.parts.slice(2).join('/'), typeof options === 'string' ? { 'encoding': options } : options, callback);
+          filesystem.readFile(resolved.parts.slice(2).join('/'), typeof options === 'string' ? { encoding: options } : options, callback);
         })
         .catch((err) => {
           callback(err);
@@ -136,7 +137,7 @@ module.exports = {
    * @param  {string} [encoding='ascii'] - File encoding
    * @returns {string} or Buffer
    */
-  readFileSync (path, encoding = 'ascii') {
+  readFileSync(path, encoding = 'ascii') {
     // TODO: buffer => binary
     if (utils.isSystemPath(path)) {
       log(`${path} is a system path`, { level: 'fs' });
@@ -157,7 +158,7 @@ module.exports = {
     return ''; // TODO:
   },
 
-  writeFile (path, data, options = () => {}, callback = options) {
+  writeFile(path, data, options = () => {}, callback = options) {
     let resolved = null;
 
     try {
@@ -168,9 +169,9 @@ module.exports = {
       return;
     }
     if (resolved.level >= 3) {
-      llfs.getPartitions(resolved.parts[0]).then((partitions) => partitions[resolved.parts[1]].getFilesystem())
+      llfs.getPartitions(resolved.parts[0]).then(partitions => partitions[resolved.parts[1]].getFilesystem())
         .then((filesystem) => {
-          filesystem.writeFile(resolved.parts.slice(2).join('/'), data, typeof options === 'string' ? { 'encoding': options } : options, callback);
+          filesystem.writeFile(resolved.parts.slice(2).join('/'), data, typeof options === 'string' ? { encoding: options } : options, callback);
         })
         .catch((err) => {
           callback(err);
@@ -179,7 +180,7 @@ module.exports = {
       callback(new Error('Is a directory'));
     }
   },
-  mkdir (path, options = () => {}, callback = options) {
+  mkdir(path, options = () => {}, callback = options) {
     let resolved = null;
 
     try {
@@ -190,7 +191,7 @@ module.exports = {
       return;
     }
     if (resolved.level >= 3) {
-      llfs.getPartitions(resolved.parts[0]).then((partitions) => partitions[resolved.parts[1]].getFilesystem())
+      llfs.getPartitions(resolved.parts[0]).then(partitions => partitions[resolved.parts[1]].getFilesystem())
         .then((filesystem) => {
           filesystem.mkdir(resolved.parts.slice(2).join('/'), options, callback);
         })

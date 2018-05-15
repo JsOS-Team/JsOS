@@ -2,7 +2,7 @@ const _ = require('underscore');
 
 module.exports = {
 
-  '/^{count}{motion}$/' (count, motion) {
+  '/^{count}{motion}$/': function (count, motion) {
     while (count--) {
       this.exec(motion);
     }
@@ -11,17 +11,16 @@ module.exports = {
 
   /*	'/^{operator}{operator}$/': function(op1,op2) {
 		this.exec(op1 + op2);
-	},*/
+	}, */
 
-  '/^{count}{operator}{count}{motion}$/' (ct1, operator, ct2, motion) {
+  '/^{count}{operator}{count}{motion}$/': function (ct1, operator, ct2, motion) {
     const count = ct1 * ct2;
 
     this.exec(count + operator + motion);
   },
 
-  '/^{operator}{motion}$/' (operator, motion) {
+  '/^{operator}{motion}$/': function (operator, motion) {
     this.exec(`1${operator}${motion}`);
-
   },
 
   /*
@@ -29,7 +28,7 @@ module.exports = {
 		Oh boy, this is the big one.
 
 	*/
-  '/^{count}{operator}{motion}$/' (count, operator, motion) {
+  '/^{count}{operator}{motion}$/': function (count, operator, motion) {
     this.addUndoState();
 
     let visualMode = 'v';
@@ -54,7 +53,7 @@ module.exports = {
 
 
   // Text object selection
-  '/^(y|d|c)(i|a)(w|W|s|S|p|\\]|\\[|\\(|\\)|b|>|<|t|\\{|\\}|"|\'|`)$/' (keys, vim, match) {
+  '/^(y|d|c)(i|a)(w|W|s|S|p|\\]|\\[|\\(|\\)|b|>|<|t|\\{|\\}|"|\'|`)$/': function (keys, vim, match) {
     this.exec('v');
     this.exec(match[2] + match[3]);
     this.exec(match[1]);
@@ -70,10 +69,10 @@ module.exports = {
 	*/
 
 
-  '/\g_/' (keys, vim) {
+  '/\g_/': function (keys, vim) {
     this.exec('$');
     const doc = this.curDoc;
-    const point = doc.find(/([\S])( |$)/g, { 'backwards': true }); // backwards
+    const point = doc.find(/([\S])( |$)/g, { backwards: true }); // backwards
 
     if (point) {
       doc.cursor.line(point.line);
@@ -81,11 +80,11 @@ module.exports = {
     }
   },
 
-  '/^gv$/' () {},
+  '/^gv$/': function () {},
 
-  '/^(b|B)/' (keys, vim) {
+  '/^(b|B)/': function (keys, vim) {
     const doc = this.curDoc;
-    const point = doc.find(/(\S*)\s*(?=[\S]*)$/g, { 'backwards': true });
+    const point = doc.find(/(\S*)\s*(?=[\S]*)$/g, { backwards: true });
 
     if (point) {
       doc.cursor.line(point.line);
@@ -94,7 +93,7 @@ module.exports = {
   },
 
 
-  '/^\\$$/' (keys, vim) {
+  '/^\\$$/': function (keys, vim) {
     const curLine = this.curDoc.line();
     let cursorPos = 0;
 
@@ -105,12 +104,12 @@ module.exports = {
   },
 
   /* go to beginning of line */
-  '/^0$/' (keys, vim) {
+  '/^0$/': function (keys, vim) {
     this.cursor().char(0);
   },
 
   /* go to next word */
-  '/^(w)$/' (keys, vim) {
+  '/^(w)$/': function (keys, vim) {
     const doc = this.curDoc;
 
     let point;
@@ -132,7 +131,7 @@ module.exports = {
   },
 
   /* go to next WORD */
-  '/^(W)$/' (keys, vim) {
+  '/^(W)$/': function (keys, vim) {
     const doc = this.curDoc;
     const point = doc.find(/(?: |^)(\S+)/g);
 
@@ -140,11 +139,10 @@ module.exports = {
       doc.cursor.line(point.line);
       doc.cursor.char(point.char);
     }
-
   },
 
   /* go to end of this word */
-  '/^(e)$/' (keys, vim) {
+  '/^(e)$/': function (keys, vim) {
     const doc = this.curDoc;
     const point = doc.find(/(\w)(?= |$|\n)/g);
 
@@ -155,7 +153,7 @@ module.exports = {
   },
 
   /* go to first non-whitespace character of this line */
-  '/\\^/' (keys, vim) {
+  '/\\^/': function (keys, vim) {
     this.exec('0');
     const doc = this.curDoc;
 
@@ -171,24 +169,24 @@ module.exports = {
   },
 
   /* *)* sentences forward. */
-  '/^\\)$/' () {
+  '/^\\)$/': function () {
     const pt = this.curDoc.find(/(?:^|\. )(.)/g);
 
     if (pt) this.curDoc.cursor.position(pt);
   },
 
   /* *(* sentences backward. */
-  '/^\\($/' () {
+  '/^\\($/': function () {
     // If mid-sentence
-    var pt = this.curDoc.find(/(?:\.|\?|\!) ([\w\s]+)(?:$)/g, { 'backwards': true });
+    var pt = this.curDoc.find(/(?:\.|\?|\!) ([\w\s]+)(?:$)/g, { backwards: true });
 
     if (!pt.found) {
       // If A middle sentence
-      var pt = this.curDoc.find(/(?:\.|\?|\!) ([\w\s]+)(?:(?:\.|\?|\!)|$)/g, { 'backwards': true });
+      var pt = this.curDoc.find(/(?:\.|\?|\!) ([\w\s]+)(?:(?:\.|\?|\!)|$)/g, { backwards: true });
     }
     if (!pt.found) {
       // If first sentence of line.
-      var pt = this.curDoc.find(/(?:^|(?:\.|\?|\!) )([\w\s]+)(?:(?:\.|\?|\!)|$)/g, { 'backwards': true });
+      var pt = this.curDoc.find(/(?:^|(?:\.|\?|\!) )([\w\s]+)(?:(?:\.|\?|\!)|$)/g, { backwards: true });
     }
 
     // If previous sentence is not at beginning
@@ -200,14 +198,14 @@ module.exports = {
 
   /* Basic movement */
 
-  '/^h$/' (keys, vim) {
+  '/^h$/': function (keys, vim) {
     const newChar = this.cursor().char() - 1;
 
     if (newChar < 0) return;
     this.cursor().char(newChar);
   },
 
-  '/^l$/' (keys, vim) {
+  '/^l$/': function (keys, vim) {
     const newChar = this.cursor().char() + 1;
 
     if (!this.curDoc.selecting && newChar >= this.curDoc.line().length) return;
@@ -215,27 +213,26 @@ module.exports = {
     this.cursor().char(newChar);
   },
 
-  '/^j$/' (keys, vim) {
+  '/^j$/': function (keys, vim) {
     const newLine = this.cursor().line() + 1;
 
     if (newLine >= this.curDoc._lines.length) return;
     this.cursor().line(newLine);
   },
 
-  '/^k$/' (keys, vim) {
+  '/^k$/': function (keys, vim) {
     const newLine = this.cursor().line() - 1;
 
     if (newLine < 0) return;
     this.cursor().line(newLine);
   },
 
-  '/^([1-9]+[0-9]*)$/' (keys, vim, res) {
+  '/^([1-9]+[0-9]*)$/': function (keys, vim, res) {
     this.keyBuffer += keys;
   },
 
   /* Go to line */
-  '/^([1-9][0-9]*)G$' (keys, vim, res) {
-
+  '/^([1-9][0-9]*)G$': function (keys, vim, res) {
     // Zero indexed but referenced one-indexed
     let lineNumber = parseInt(res[1]) - 1;
 
@@ -249,17 +246,17 @@ module.exports = {
   },
 
   /* go to first line */
-  '/^gg$/' (keys, vim, res) {
+  '/^gg$/': function (keys, vim, res) {
     this.exec('1G');
   },
 
   /* go to last line */
-  '/^G$/' (keys, vim, res) {
+  '/^G$/': function (keys, vim, res) {
     this.exec(`${String(this.curDoc._lines.length)}G`);
   },
 
 
-  '/^f(.)$/' (keys, vim, match) { // convert to: f([\w])
+  '/^f(.)$/': function (keys, vim, match) { // convert to: f([\w])
     const lastSearch = this.curDoc.last('search');
 
     this.exec(`/${match[1]}\n`);
@@ -268,7 +265,7 @@ module.exports = {
   },
 
 
-  '/^F(.)$/' (keys, vim, match) { // convert to: f([\w])
+  '/^F(.)$/': function (keys, vim, match) { // convert to: f([\w])
     const lastSearch = this.curDoc.last('search');
 
     this.exec(`?${match[1]}\n`);
@@ -277,7 +274,7 @@ module.exports = {
   },
 
 
-  '/^t(.)$/' (keys, vim, match) { // convert to: f([\w])
+  '/^t(.)$/': function (keys, vim, match) { // convert to: f([\w])
     const lastSearch = this.curDoc.last('search');
 
     this.exec('l');
@@ -288,7 +285,7 @@ module.exports = {
   },
 
 
-  '^T(.)$' (keys, vim, match) { // convert to: f([\w])
+  '^T(.)$': function (keys, vim, match) { // convert to: f([\w])
     const lastSearch = this.curDoc.last('search');
 
     this.exec('h');
@@ -299,11 +296,11 @@ module.exports = {
   },
 
 
-  '/^;$/' (vim) {
+  '/^;$/': function (vim) {
     this.exec(this.curDoc.last('f'));
   },
 
-  '/^,$/' (vim) {
+  '/^,$/': function (vim) {
     const last = this.curDoc.last('f');
     let lastOp = last.substring(0, 1);
 
@@ -317,8 +314,7 @@ module.exports = {
   },
 
 
-  '/^(\\/|\\?)(.*)\\n/' (keys, vim, match) {
-
+  '/^(\\/|\\?)(.*)\\n/': function (keys, vim, match) {
     this.curDoc.last('search', keys);
 
     this.searchMode = match[1] === '/' ? 'forwards' : 'backwards';
@@ -329,8 +325,8 @@ module.exports = {
       }
     }
     const pt = this.curDoc.find(new RegExp(`(${this.searchBuffer.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&')})`, 'g'), {
-      'selection': true,
-      'backwards': vim.searchMode === 'backwards',
+      selection: true,
+      backwards: vim.searchMode === 'backwards',
     });
 
     if (pt) {
@@ -343,13 +339,13 @@ module.exports = {
 		this.searchMode = 'forward';
 		this.keyBuffer = '';
 		this.mode('search');
-	},*/
+	}, */
 
-  '/^n$/' (keys, vim, res) {
+  '/^n$/': function (keys, vim, res) {
     this.exec(this.curDoc.last('search'));
   },
 
-  '/^N$/' (keys, vim, res) {
+  '/^N$/': function (keys, vim, res) {
     const last = this.curDoc.last('search');
 
     if (!last) return;
@@ -365,12 +361,12 @@ module.exports = {
 
   // MODES
 
-  '/(esc)/' (keys, vim) {
+  '/(esc)/': function (keys, vim) {
     this.keyBuffer = '';
   },
 
   // Insert mode
-  '/^(i|s|S)/' (keys, vim) {
+  '/^(i|s|S)/': function (keys, vim) {
     if (this.execDepth === 1) {
       this.addUndoState();
     }
@@ -383,7 +379,7 @@ module.exports = {
     this.mode('insert');
   },
 
-  '/^(A)$/' (keys, vim) {
+  '/^(A)$/': function (keys, vim) {
     if (this.execDepth === 1) {
       this.addUndoState();
     }
@@ -391,7 +387,7 @@ module.exports = {
     this.exec('a');
   },
 
-  '/^(I)/' (keys, vim) {
+  '/^(I)/': function (keys, vim) {
     if (this.execDepth === 1) {
       this.addUndoState();
     }
@@ -399,26 +395,26 @@ module.exports = {
     this.exec('i');
   },
 
-  '/^v$/' (keys, vim) {
+  '/^v$/': function (keys, vim) {
     const pos = this.curDoc.cursor.position();
 
     this.rangeStart = this.rangeEnd = pos;
     this.mode('visual');
   },
 
-  '/^V$/' (keys, vim) {
+  '/^V$/': function (keys, vim) {
     this.submode = 'Visual';
     this.exec('v');
   },
 
-  '/^<Ctrl-v>$/' () {
+  '/^<Ctrl-v>$/': function () {
     this.submode = 'block';
     this.exec('v');
   },
 
 
   /* join */
-  '/^J$/' (keys, vim) {
+  '/^J$/': function (keys, vim) {
     this.exec('j');
     this.exec('0');
     this.exec('v');
@@ -446,7 +442,7 @@ module.exports = {
     this.exec(`${position + 1}l`);
   },
 
-  '/^o$/' (keys, vim) {
+  '/^o$/': function (keys, vim) {
     if (this.execDepth === 1) {
       this.addUndoState();
     }
@@ -454,7 +450,7 @@ module.exports = {
     this.exec('\n');
   },
 
-  '/^O$/' (keys, vim) {
+  '/^O$/': function (keys, vim) {
     if (this.execDepth === 1) {
       this.addUndoState();
     }
@@ -465,7 +461,7 @@ module.exports = {
     this.exec('k');
     this.exec('i');
   },
-  '/^a$/' (keys, vim) {
+  '/^a$/': function (keys, vim) {
     if (this.execDepth === 1) {
       this.addUndoState();
     }
@@ -475,7 +471,7 @@ module.exports = {
     doc.cursor.char(doc.cursor.char() + 1);
   },
 
-  '/^([1-9]+[0-9]*)?(yy|cc|dd)$/' (keys, vim, match) { // number
+  '/^([1-9]+[0-9]*)?(yy|cc|dd)$/': function (keys, vim, match) { // number
     if (this.execDepth === 1) {
       this.addUndoState();
     }
@@ -519,18 +515,17 @@ module.exports = {
 
     this.register(this.currentRegister, command);
     this.curDoc.yanking = false;
-
   },
 
 
   /* Set current register */
-  '/^"([-a-z%\.\-_\"#])$/' (keys, vim, match) {
+  '/^"([-a-z%\.\-_\"#])$/': function (keys, vim, match) {
     this.currentRegister = match[1];
   },
 
 
   /* paste / put after cursor */
-  '/^(p|P)$/' (keys, vim, match) {
+  '/^(p|P)$/': function (keys, vim, match) {
     const P = match[1] === 'P';
     const reg = this.register(this.currentRegister || 0);
 
@@ -549,10 +544,9 @@ module.exports = {
       this.exec(reg);
       this.exec('esc');
     }
-
   },
 
-  '/^(P)/' (keys, vim, res) {
+  '/^(P)/': function (keys, vim, res) {
     this.exec('i');
     this.exec(this.register(0));
     this.exec('esc');
@@ -560,7 +554,7 @@ module.exports = {
 
 
   /* Begin recording into specified registry */
-  '/^q([a-z]?)$/' (keys, vim, res) {
+  '/^q([a-z]?)$/': function (keys, vim, res) {
     if (this.recording) {
       this.register(this.recordingRegister, this.recordingBuffer);
       this.recording = false;
@@ -583,10 +577,10 @@ module.exports = {
 			this.recording = false;
 			this.curDoc.text(vim.preRecordText);
 		}
-	},*/
+	}, */
 
   /* Execute the command as stored in the register */
-  '/^@([a-z])$/' (keys, vim, res) {
+  '/^@([a-z])$/': function (keys, vim, res) {
     const commands = this.register(res[1]);
 
     this.curDoc.last('macro', res[1]);
@@ -599,7 +593,7 @@ module.exports = {
     }
   },
 
-  '/^@@$/' () {
+  '/^@@$/': function () {
     const last = this.curDoc.last('macro');
 
     if (last) {
@@ -611,11 +605,11 @@ module.exports = {
 		var ct = result[1];
 		var command = result[2];
 		while(ct--) this.exec(command);
-	}*/
+	} */
 
   /* REPLACE */
 
-  '/^r(.)$/' (keys, vim, match) {
+  '/^r(.)$/': function (keys, vim, match) {
     this.exec('x');
     this.exec('i');
     this.exec(match[1]);
@@ -626,7 +620,7 @@ module.exports = {
 
 
   /* Commands that can be stupidly executed N times, instead of a smarter visual selection */
-  '/^([1-9]+[0-9]*)(x|X)$/' (keys, vim, match) {
+  '/^([1-9]+[0-9]*)(x|X)$/': function (keys, vim, match) {
     if (this.execDepth === 1) {
       this.addUndoState();
     }
@@ -637,7 +631,7 @@ module.exports = {
     }
   },
 
-  '/^x$/' (keys, vim, res) {
+  '/^x$/': function (keys, vim, res) {
     if (this.execDepth === 1) {
       this.addUndoState();
     }
@@ -654,35 +648,35 @@ module.exports = {
     // Otherwise treat as d
     this.exec('d');
   },
-  '/^X$/' (keys, vim, res) {
+  '/^X$/': function (keys, vim, res) {
     if (this.execDepth === 1) {
       this.addUndoState();
     }
     this.exec('h');
     this.exec('x');
   },
-  '/^D$/' (keys, vim, res) {
+  '/^D$/': function (keys, vim, res) {
     if (this.execDepth === 1) {
       this.addUndoState();
     }
     this.exec('d');
     this.exec('$');
   },
-  '/^C$/' (keys, vim, res) {
+  '/^C$/': function (keys, vim, res) {
     if (this.execDepth === 1) {
       this.addUndoState();
     }
     this.exec('c');
     this.exec('$');
   },
-  '/^s$/' (keys, vim, res) {
+  '/^s$/': function (keys, vim, res) {
     if (this.execDepth === 1) {
       this.addUndoState();
     }
     this.exec('c');
     this.exec('l');
   },
-  '/^S$/' (keys, vim, res) {
+  '/^S$/': function (keys, vim, res) {
     if (this.execDepth === 1) {
       this.addUndoState();
     }
@@ -690,7 +684,7 @@ module.exports = {
     this.exec('c');
   },
 
-  '/^u$/' (keys, vim, res) {
+  '/^u$/': function (keys, vim, res) {
     if (this.execDepth === 1) {
       if (this.addUndoState()) {
         // quick undo to get back to current state just recorded.
@@ -705,7 +699,7 @@ module.exports = {
     this.curDoc.cursor.line(state.cursor.line);
   },
 
-  '/<C-r>/' (keys, vim, res) {
+  '/<C-r>/': function (keys, vim, res) {
     const state = this.curDoc.undo.next();
 
     if (!state) return;
@@ -720,11 +714,11 @@ module.exports = {
 	},
 */
 
-  '/:say (.*)\\n/' (exCommand) {
+  '/:say (.*)\\n/': function (exCommand) {
     this.notify('hey!');
   },
 
-  '/:(.*)↑/' () {
+  '/:(.*)↑/': function () {
     const hist = this.histories[':'];
     let pos = hist.position;
 
@@ -734,7 +728,7 @@ module.exports = {
     this.exec(':');
     this.exec(hist[pos]);
   },
-  '/:(.*)↓/' () {
+  '/:(.*)↓/': function () {
     const hist = this.histories[':'];
     let pos = hist.position;
 
@@ -747,18 +741,18 @@ module.exports = {
     this.exec(hist[pos]);
   },
 
-  '/^:abbreviate (.*?) (.*)\n$/' (keys, vim, expr) {
+  '/^:abbreviate (.*?) (.*)\n$/': function (keys, vim, expr) {
     const key = expr[1];
     const val = expr[2];
 
     this.rc.abbreviations[key] = val;
   },
 
-  '/^:ab (.*?) (.*)\n$/' (keys) {
+  '/^:ab (.*?) (.*)\n$/': function (keys) {
     this.exec(keys.replace(/:ab/, ':abbreviate'));
   },
 
-  '/^~$/' () {
+  '/^~$/': function () {
     const curChar = this.curChar;
 
     this.exec('r');
@@ -767,15 +761,15 @@ module.exports = {
   },
 
   /* complement */
-  '/^%$/' () {
+  '/^%$/': function () {
     const pos = this.curDoc.cursor.position();
     const table = {
       '{': '}',
       '}': '{',
       '(': ')',
       ')': '(',
-      'f': 'F',
-      'F': 'f',
+      f: 'F',
+      F: 'f',
     };
     const seeking = table[this.curChar];
     const verb = '{('.indexOf(this.curChar) > -1 ? 'f' : 'F';
@@ -806,20 +800,20 @@ module.exports = {
   },
 
   /* Mark */
-  '/^m([a-z\.])$/' (keys, vim, expr) {
+  '/^m([a-z\.])$/': function (keys, vim, expr) {
     const pos = this.curDoc.cursor.position();
     const mark = {
-      'col':  pos.char,
-      'line': pos.line,
-      'file': this.curDoc.path || '',
-      'mark': expr[1],
+      col: pos.char,
+      line: pos.line,
+      file: this.curDoc.path || '',
+      mark: expr[1],
     };
 
     this.curDoc.addMark(mark);
   },
 
   /* Go to mark */
-  '/^(\'|`)([a-z\.<>])$/' (keys, vim, expr) {
+  '/^(\'|`)([a-z\.<>])$/': function (keys, vim, expr) {
     const markName = expr[2];
 
     if (markName in this.curDoc._marks) {

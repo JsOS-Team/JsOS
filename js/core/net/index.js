@@ -31,7 +31,7 @@ const stat = require('./net-stat');
 const onInterfaceAdded = new EventController();
 const onInterfaceRemoved = new EventController();
 
-function interfaceAdd (intf) {
+function interfaceAdd(intf) {
   assert(intf instanceof Interface);
   interfaces.add(intf);
   onInterfaceAdded.dispatch(intf);

@@ -57,10 +57,11 @@ exports.init = function (volume, opts, bootSector) {
       dest = new Buffer(vol._sectorSize);
     }
     _.log(_.log.DBG, 'vol._readSectors', secNum, dest.length);
-    if (secNum < volume.numSectors) cache.readSectors(secNum, dest, (e) => {
-      cb(e, dest);
-    });
-    else throw Error('Invalid sector number!');
+    if (secNum < volume.numSectors) {
+      cache.readSectors(secNum, dest, (e) => {
+        cb(e, dest);
+      });
+    } else throw Error('Invalid sector number!');
   };
 
   vol._writeSectors = function (cache, secNum, data, cb) {
@@ -72,7 +73,7 @@ exports.init = function (volume, opts, bootSector) {
     else throw Error('Invalid sector number!');
   };
 
-  function fatInfoForCluster (n) {
+  function fatInfoForCluster(n) {
     let entryStruct = S.fatField[fatType],
       FATOffset = fatType === 'fat12' ? Math.floor(n / 2) * entryStruct.size : n * entryStruct.size,
       SecNum = BS.ResvdSecCnt + Math.floor(FATOffset / BS.BytsPerSec);
@@ -80,9 +81,9 @@ exports.init = function (volume, opts, bootSector) {
     EntOffset = FATOffset % BS.BytsPerSec;
 
     return {
-      'sector': SecNum - BS.ResvdSecCnt,
-      'offset': EntOffset,
-      'struct': entryStruct,
+      sector: SecNum - BS.ResvdSecCnt,
+      offset: EntOffset,
+      struct: entryStruct,
     };
   }
 
@@ -131,20 +132,22 @@ exports.init = function (volume, opts, bootSector) {
     const info = fatInfoForCluster(clusterNum);
     // TODO: technically fat32 needs to *preserve* the high 4 bits
 
-    if (fatType === 'fat12') fatChain.readFromPosition(info, info.struct.size, (e, n, d) => {
-      const value = info.struct.valueFromBytes(d);
+    if (fatType === 'fat12') {
+      fatChain.readFromPosition(info, info.struct.size, (e, n, d) => {
+        const value = info.struct.valueFromBytes(d);
 
-      if (clusterNum % 2) {
-        value.field1ab = status >>> 4;
-        value.field1c = status & 0x0F;
-      } else {
-        value.field0a = status >>> 8;
-        value.field0bc = status & 0xFF;
-      }
-      const entry = info.struct.bytesFromValue(value);
+        if (clusterNum % 2) {
+          value.field1ab = status >>> 4;
+          value.field1c = status & 0x0F;
+        } else {
+          value.field0a = status >>> 8;
+          value.field0bc = status & 0xFF;
+        }
+        const entry = info.struct.bytesFromValue(value);
 
-      fatChain.writeToPosition(info, entry, cb);
-    }); else {
+        fatChain.writeToPosition(info, entry, cb);
+      });
+    } else {
       const entry = info.struct.bytesFromValue(status);
 
       fatChain.writeToPosition(info, entry, cb);
@@ -156,12 +159,14 @@ exports.init = function (volume, opts, bootSector) {
       cb = hint;
       hint = 2; // TODO: cache a better starting point?
     }
-    function searchForFreeCluster (num, cb) {
-      if (num < countofClusters) vol.fetchFromFAT(num, (e, status) => {
-        if (e) cb(e);
-        else if (status === 'free') cb(null, num);
-        else searchForFreeCluster(num + 1, cb);
-      }); else cb(S.err.NOSPC()); // TODO: try searching backwards from hint…
+    function searchForFreeCluster(num, cb) {
+      if (num < countofClusters) {
+        vol.fetchFromFAT(num, (e, status) => {
+          if (e) cb(e);
+          else if (status === 'free') cb(null, num);
+          else searchForFreeCluster(num + 1, cb);
+        });
+      } else cb(S.err.NOSPC()); // TODO: try searching backwards from hint…
     }
     searchForFreeCluster(hint, (e, clusterNum) => {
       if (e) cb(e);

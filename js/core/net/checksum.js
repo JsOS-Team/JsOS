@@ -14,7 +14,7 @@
 
 'use strict';
 
-function checksum (u8, offset, len, extraSum) {
+function checksum(u8, offset, len, extraSum) {
   const count = len >>> 1;
   let acc = extraSum >>> 0;
 

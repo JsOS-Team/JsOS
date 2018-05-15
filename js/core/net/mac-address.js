@@ -14,12 +14,12 @@
 
 'use strict';
 
-function valueString (x) {
+function valueString(x) {
   return x < 0x10 ? `0${x.toString(16)}` : x.toString(16);
 }
 
 class MACAddress {
-  constructor (a, b, c, d, e, f) {
+  constructor(a, b, c, d, e, f) {
     this.a = (a & 0xff) >>> 0;
     this.b = (b & 0xff) >>> 0;
     this.c = (c & 0xff) >>> 0;
@@ -27,15 +27,15 @@ class MACAddress {
     this.e = (e & 0xff) >>> 0;
     this.f = (f & 0xff) >>> 0;
   }
-  toString () {
+  toString() {
     return `${valueString(this.a)}:${valueString(this.b)}:${valueString(this.c)}:${valueString(this.d)}:${valueString(this.e)}:${valueString(this.f)}`;
   }
-  equals (that) {
+  equals(that) {
     return this.a === that.a && this.b === that.b &&
       this.c === that.c && this.d === that.d &&
       this.e === that.e && this.f === that.f;
   }
-  static parse (str) {
+  static parse(str) {
     if (str instanceof MACAddress) {
       return str;
     }

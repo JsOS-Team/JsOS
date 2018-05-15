@@ -25,7 +25,7 @@ const typeutils = require('typeutils');
 const stat = require('./net-stat');
 
 class Interface {
-  constructor (macAddr) {
+  constructor(macAddr) {
     assert(macAddr instanceof MACAddress);
     this.macAddr = macAddr;
     this.ontransmit = null;
@@ -39,10 +39,10 @@ class Interface {
     this.isNetworkEnabled = false;
     this.fragments = new Map();
   }
-  disableArp () {
+  disableArp() {
     this.arp = null;
   }
-  setNetworkEnabled (value) {
+  setNetworkEnabled(value) {
     assert(typeutils.isBoolean(value));
     if (this.isNetworkEnabled === value) {
       return;
@@ -55,26 +55,26 @@ class Interface {
       this.onNetworkDown.dispatch();
     }
   }
-  getMACAddress () {
+  getMACAddress() {
     return this.macAddr;
   }
-  setName (name) {
+  setName(name) {
     this.name = String(name);
   }
-  setBufferDataOffset (offset) {
+  setBufferDataOffset(offset) {
     assert((offset | 0) >= 0);
     this.bufferDataOffset = offset | 0;
   }
-  configure (ip, mask) {
+  configure(ip, mask) {
     assert(ip instanceof IP4Address);
     assert(mask instanceof IP4Address);
     this.ipAddr = ip;
     this.netmask = mask;
   }
-  hasIP () {
+  hasIP() {
     return !this.ipAddr.equals(IP4Address.ANY);
   }
-  receive (u8) {
+  receive(u8) {
     ++stat.receiveCount;
     const etherType = ethernet.getEtherType(u8, this.bufferDataOffset);
     const nextOffset = this.bufferDataOffset + ethernet.headerLength;
@@ -92,13 +92,13 @@ class Interface {
 
     debug('receive called', etherType.toString(16));
   }
-  sendRaw (u8) {
+  sendRaw(u8) {
     ++stat.transmitCount;
     if (this.ontransmit) {
       this.ontransmit(u8, null);
     }
   }
-  sendIP4 (viaIP, u8headers, u8data) {
+  sendIP4(viaIP, u8headers, u8data) {
     ++stat.transmitCount;
     let targetMAC;
 
@@ -115,8 +115,10 @@ class Interface {
       targetMAC = MACAddress.ZERO;
     }
 
-    ethernet.write(u8headers, this.bufferDataOffset, targetMAC,
-      this.macAddr, 0x0800);
+    ethernet.write(
+      u8headers, this.bufferDataOffset, targetMAC,
+      this.macAddr, 0x0800,
+    );
     if (this.ontransmit) {
       this.ontransmit(u8headers, u8data);
     }

@@ -11,36 +11,36 @@ const MAX_OCTAVE = 7;
 
 
 class Note {
-  constructor () {
+  constructor() {
     this.octave = 4;
     this.duration = DURATION;
   }
 
-  convert (note) {
+  convert(note) {
     return note * this.octaver;
   }
 
-  upDuration () {
+  upDuration() {
     return this.duration += 10;
   }
 
-  downDuration () {
+  downDuration() {
     return this.duration === 10 ? this.duration : this.duration -= 10;
   }
 
-  setOctave (octave) {
+  setOctave(octave) {
     if (octave >= MIN_OCTAVE && octave <= MAX_OCTAVE) this.octave = octave;
   }
 
-  upOctave () {
+  upOctave() {
     return this.octave === MAX_OCTAVE ? this.octave : ++this.octave;
   }
 
-  downOctave () {
+  downOctave() {
     return this.octave === MIN_OCTAVE ? this.octave : --this.octave;
   }
 
-  parse (str) {
+  parse(str) {
     const regexp = /(\d+)(\w)(\d)/;
     const [, duration, note, octave] = regexp.exec(str);
 
@@ -51,7 +51,7 @@ class Note {
     };
   }
 
-  duration2ms (duration) {
+  duration2ms(duration) {
     // bpm   ¼	  1		 ½   ⅛  1/16
     // 120	500	2000 1000	250	125
     switch (Number(duration)) {
@@ -70,72 +70,72 @@ class Note {
     }
   }
 
-  get notes () {
+  get notes() {
     return ['C', 'c', 'D', 'd', 'E', 'F', 'f', 'G', 'f', 'A', 'a', 'h'];
   }
 
-  get octaver () {
+  get octaver() {
     return Math.pow(2, this.octave - 2);
   }
 
-  get keynotes () {
+  get keynotes() {
     return {
-      'C': 'C',
-      'c': 'CD',
-      'D': 'D',
-      'd': 'DD',
-      'E': 'E',
-      'F': 'F',
-      'f': 'FD',
-      'G': 'G',
-      'g': 'GD',
-      'A': 'A',
-      'a': 'AD',
-      'H': 'H',
+      C: 'C',
+      c: 'CD',
+      D: 'D',
+      d: 'DD',
+      E: 'E',
+      F: 'F',
+      f: 'FD',
+      G: 'G',
+      g: 'GD',
+      A: 'A',
+      a: 'AD',
+      H: 'H',
     };
   }
 
-  get C () {
+  get C() {
     return this.convert(65);
   }
 
-  get CD () {
+  get CD() {
     return this.convert(69);
   }
 
-  get D () {
+  get D() {
     return this.convert(73);
   }
-  get DD () {
+  get DD() {
     return this.convert(78);
   }
-  get E () {
+  get E() {
     return this.convert(82);
   }
-  get F () {
+  get F() {
     return this.convert(87);
   }
-  get FD () {
+  get FD() {
     return this.convert(92);
   }
 
-  get G () {
+  get G() {
     return this.convert(98);
   }
 
-  get GD () {
+  get GD() {
     return this.convert(104);
   }
 
-  get A () {
+  get A() {
     return this.convert(110);
   }
 
-  get AD () {
+  get AD() {
     return this.convert(116);
   }
 
-  get H () {
+  get H() {
     return this.convert(123);
   }
 }

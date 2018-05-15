@@ -15,6 +15,7 @@
 'use strict';
 
 const isaac = require('./isaac-wrapper');
+
 let defaultSource = null;
 const availableSources = Object.create(null);
 

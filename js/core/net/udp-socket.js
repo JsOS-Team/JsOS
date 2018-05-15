@@ -26,14 +26,14 @@ const route = require('./route');
 const ports = new PortAllocator();
 
 class UDPSocket {
-  constructor (protocol = 'ip4') {
+  constructor(protocol = 'ip4') {
     this._protocol = protocol;
     this._intf = null;
     this._port = 0;
     this.onmessage = null;
   }
 
-  send (ipOpt, port, u8) {
+  send(ipOpt, port, u8) {
     let ip = ipOpt;
 
     if (typeutils.isString(ip)) {
@@ -71,7 +71,7 @@ class UDPSocket {
     udpTransmit(intf, ip, viaIP, this._port, port, u8);
   }
 
-  bind (port) {
+  bind(port) {
     assertError(portUtils.isPort(port), netError.E_INVALID_PORT);
 
     if (!ports.allocPort(port, this)) {
@@ -81,7 +81,7 @@ class UDPSocket {
     this._port = port;
   }
 
-  bindToInterface (intf, port) {
+  bindToInterface(intf, port) {
     if (!intf) {
       throw netError.E_INTERFACE_EXPECTED;
     }
@@ -92,13 +92,13 @@ class UDPSocket {
     }
   }
 
-  close () {
+  close() {
     if (this._port) {
       ports.free(this._port);
     }
   }
 
-  static lookupReceive (destPort) {
+  static lookupReceive(destPort) {
     return ports.lookup(destPort);
   }
 }

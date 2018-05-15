@@ -18,6 +18,7 @@
 
 const resources = require('../resources');
 const pciids = require('./pciids.json');
+
 const io = resources.ioRange;
 const irqRange = resources.irqRange;
 const memrange = resources.memoryRange;
@@ -27,11 +28,11 @@ const addressPortResource = io.port(0xCF8);
 const dataPortResource = io.port(0xCFC);
 
 const sizeof = {
-  'BYTE': 1,
-  'UINT8': 1,
-  'UINT16': 2,
-  'UINT32': 4,
-  'UINT64': 8,
+  BYTE: 1,
+  UINT8: 1,
+  UINT16: 2,
+  UINT32: 4,
+  UINT64: 8,
 };
 
 const pciAccessorFactory = ((addressPort, dataPort) => {
@@ -42,68 +43,68 @@ const pciAccessorFactory = ((addressPort, dataPort) => {
    * of devices
    */
   const fields = {
-    'VENDOR_ID': {
-      'offset': 0x00,
-      'shift': 0,
-      'mask': 0xffff,
+    VENDOR_ID: {
+      offset: 0x00,
+      shift: 0,
+      mask: 0xffff,
     },
-    'DEVICE_ID': {
-      'offset': 0x00,
-      'shift': 2,
-      'mask': 0xffff,
-    },
-
-    'COMMAND': {
-      'offset': 0x04,
-      'shift': 0,
-      'mask': 0xffff,
-    },
-    'STATUS': {
-      'offset': 0x04,
-      'shift': 2,
-      'mask': 0xffff,
+    DEVICE_ID: {
+      offset: 0x00,
+      shift: 2,
+      mask: 0xffff,
     },
 
-    'REVISION_ID': {
-      'offset': 0x08,
-      'shift': 0,
-      'mask': 0xff,
+    COMMAND: {
+      offset: 0x04,
+      shift: 0,
+      mask: 0xffff,
     },
-    'PROG_IF': {
-      'offset': 0x08,
-      'shift': 1,
-      'mask': 0xff,
-    },
-    'SUBCLASS': {
-      'offset': 0x08,
-      'shift': 2,
-      'mask': 0xff,
-    },
-    'CLASS_CODE': {
-      'offset': 0x08,
-      'shift': 3,
-      'mask': 0xff,
+    STATUS: {
+      offset: 0x04,
+      shift: 2,
+      mask: 0xffff,
     },
 
-    'CACHE_LINESIZE': {
-      'offset': 0x0c,
-      'shift': 0,
-      'mask': 0xff,
+    REVISION_ID: {
+      offset: 0x08,
+      shift: 0,
+      mask: 0xff,
     },
-    'LATENCY_TIMER': {
-      'offset': 0x0c,
-      'shift': 1,
-      'mask': 0xff,
+    PROG_IF: {
+      offset: 0x08,
+      shift: 1,
+      mask: 0xff,
     },
-    'HEADER_TYPE': {
-      'offset': 0x0c,
-      'shift': 2,
-      'mask': 0xff,
+    SUBCLASS: {
+      offset: 0x08,
+      shift: 2,
+      mask: 0xff,
     },
-    'BIST': {
-      'offset': 0x0c,
-      'shift': 3,
-      'mask': 0xff,
+    CLASS_CODE: {
+      offset: 0x08,
+      shift: 3,
+      mask: 0xff,
+    },
+
+    CACHE_LINESIZE: {
+      offset: 0x0c,
+      shift: 0,
+      mask: 0xff,
+    },
+    LATENCY_TIMER: {
+      offset: 0x0c,
+      shift: 1,
+      mask: 0xff,
+    },
+    HEADER_TYPE: {
+      offset: 0x0c,
+      shift: 2,
+      mask: 0xff,
+    },
+    BIST: {
+      offset: 0x0c,
+      shift: 3,
+      mask: 0xff,
     },
   };
 
@@ -112,54 +113,54 @@ const pciAccessorFactory = ((addressPort, dataPort) => {
    * (header type 0x00)
    */
   const generalFields = {
-    'BAR': [
+    BAR: [
       {
-        'offset': 0x10,
-        'shift': 0,
-        'mask': 0xffffffff,
+        offset: 0x10,
+        shift: 0,
+        mask: 0xffffffff,
       }, {
-        'offset': 0x14,
-        'shift': 0,
-        'mask': 0xffffffff,
+        offset: 0x14,
+        shift: 0,
+        mask: 0xffffffff,
       }, {
-        'offset': 0x18,
-        'shift': 0,
-        'mask': 0xffffffff,
+        offset: 0x18,
+        shift: 0,
+        mask: 0xffffffff,
       }, {
-        'offset': 0x1c,
-        'shift': 0,
-        'mask': 0xffffffff,
+        offset: 0x1c,
+        shift: 0,
+        mask: 0xffffffff,
       }, {
-        'offset': 0x20,
-        'shift': 0,
-        'mask': 0xffffffff,
+        offset: 0x20,
+        shift: 0,
+        mask: 0xffffffff,
       }, {
-        'offset': 0x24,
-        'shift': 0,
-        'mask': 0xffffffff,
-      }
+        offset: 0x24,
+        shift: 0,
+        mask: 0xffffffff,
+      },
     ],
 
-    'SUBSYS_VENDOR': {
-      'offset': 0x2c,
-      'shift': 0,
-      'mask': 0xffff,
+    SUBSYS_VENDOR: {
+      offset: 0x2c,
+      shift: 0,
+      mask: 0xffff,
     },
-    'SUBSYS_ID': {
-      'offset': 0x2c,
-      'shift': 2,
-      'mask': 0xffff,
+    SUBSYS_ID: {
+      offset: 0x2c,
+      shift: 2,
+      mask: 0xffff,
     },
 
-    'INTERRUPT_LINE': {
-      'offset': 0x3c,
-      'shift': 0,
-      'mask': 0xff,
+    INTERRUPT_LINE: {
+      offset: 0x3c,
+      shift: 0,
+      mask: 0xff,
     },
-    'INTERRUPT_PIN': {
-      'offset': 0x3c,
-      'shift': 1,
-      'mask': 0xff,
+    INTERRUPT_PIN: {
+      offset: 0x3c,
+      shift: 1,
+      mask: 0xff,
     },
   };
 
@@ -168,31 +169,31 @@ const pciAccessorFactory = ((addressPort, dataPort) => {
    * (header type 0x01 or 0x02)
    */
   const bridgeFields = {
-    'PRIMARY_BUS': {
-      'offset': 0x18,
-      'shift': 0,
-      'mask': 0xff,
+    PRIMARY_BUS: {
+      offset: 0x18,
+      shift: 0,
+      mask: 0xff,
     },
-    'SECONDARY_BUS': {
-      'offset': 0x18,
-      'shift': 1,
-      'mask': 0xff,
+    SECONDARY_BUS: {
+      offset: 0x18,
+      shift: 1,
+      mask: 0xff,
     },
-    'SUBORDINATE': {
-      'offset': 0x18,
-      'shift': 2,
-      'mask': 0xff,
+    SUBORDINATE: {
+      offset: 0x18,
+      shift: 2,
+      mask: 0xff,
     },
   };
 
-  function setPort (bus, slot, func, offset) {
+  function setPort(bus, slot, func, offset) {
     const addr = (bus << 16 | slot << 11 | func << 8 |
       offset & 0xfc | 0x80000000) >>> 0;
 
     addressPort.write32(addr);
   }
 
-  function readRaw32 (bus, slot, func, offset) {
+  function readRaw32(bus, slot, func, offset) {
     if (offset % sizeof.UINT32 !== 0) {
       throw new Error('unaligned pci space 32 bit read');
     }
@@ -202,7 +203,7 @@ const pciAccessorFactory = ((addressPort, dataPort) => {
     return dataPort.read32();
   }
 
-  function dwToFieldValue (value, field) {
+  function dwToFieldValue(value, field) {
     return (value >>> 8 * sizeof.BYTE * field.shift & field.mask) >>> 0;
   } // eslint-disable-line max-len
 
@@ -212,7 +213,7 @@ const pciAccessorFactory = ((addressPort, dataPort) => {
    * includes bus, slot and func of a device.
    */
   class PciAccessor {
-    constructor (address) {
+    constructor(address) {
       const bus = address.bus >>> 0;
       const slot = address.slot >>> 0;
       const func = address.func >>> 0;
@@ -229,7 +230,7 @@ const pciAccessorFactory = ((addressPort, dataPort) => {
 
       const offsetCache = new Map();
 
-      function writeRaw32 (offset, value) {
+      function writeRaw32(offset, value) {
         if (offset % sizeof.UINT32 !== 0) {
           throw new Error('unaligned pci space 32-bit write');
         }
@@ -239,7 +240,7 @@ const pciAccessorFactory = ((addressPort, dataPort) => {
         return dataPort.write32(value >>> 0);
       }
 
-      function writeRaw16 (offset, value) {
+      function writeRaw16(offset, value) {
         if (offset % sizeof.UINT16 !== 0) {
           throw new Error('unaligned pci space 16-bit write');
         }
@@ -249,7 +250,7 @@ const pciAccessorFactory = ((addressPort, dataPort) => {
         return dataPort.write16((value & 0xffff) >>> 0);
       }
 
-      function writeRaw8 (offset, value) {
+      function writeRaw8(offset, value) {
         setPort(bus, slot, func, offset);
 
         return dataPort.write8((value & 0xff) >>> 0);
@@ -306,7 +307,7 @@ const pciAccessorFactory = ((addressPort, dataPort) => {
     /**
      * Returns PCI accessor object for provided address
      */
-    get (address) {
+    get(address) {
       const key = JSON.stringify([address.bus, address.slot, address.func]);
 
       if (accessorCache.has(key)) {
@@ -323,7 +324,7 @@ const pciAccessorFactory = ((addressPort, dataPort) => {
     /**
      * Check if PCI device at address exists
      */
-    exists (bus, slot, func) {
+    exists(bus, slot, func) {
       const field = fields.VENDOR_ID;
       const value = readRaw32(bus, slot, func, field.offset);
       const vendorId = dwToFieldValue(value, field);
@@ -336,7 +337,7 @@ const pciAccessorFactory = ((addressPort, dataPort) => {
 /**
  * Find ACPI PCI device bus, slot and function
  */
-function locateAcpiDevice (dev) {
+function locateAcpiDevice(dev) {
   if (!dev.isDevice()) {
     return null;
   }
@@ -350,9 +351,9 @@ function locateAcpiDevice (dev) {
     busId = dev.getRootBridgeBusNumber();
 
     return {
-      'bus': busId,
-      'slot': slotId,
-      'func': funcId,
+      bus: busId,
+      slot: slotId,
+      func: funcId,
     };
   }
 
@@ -370,9 +371,9 @@ function locateAcpiDevice (dev) {
     busId = parentDev.getRootBridgeBusNumber();
 
     return {
-      'bus': busId,
-      'slot': slotId,
-      'func': funcId,
+      bus: busId,
+      slot: slotId,
+      func: funcId,
     };
   }
 
@@ -383,9 +384,9 @@ function locateAcpiDevice (dev) {
   }
 
   const pciParent = pciAccessorFactory.get({
-    'bus': parentLocation.bus,
-    'slot': parentLocation.slot,
-    'func': parentLocation.func,
+    bus: parentLocation.bus,
+    slot: parentLocation.slot,
+    func: parentLocation.func,
   });
 
   const header = pciParent.read(pciParent.fields().HEADER_TYPE);
@@ -400,9 +401,9 @@ function locateAcpiDevice (dev) {
   const bridgeBus = pciParent.read(pciParent.bridgeFields().SECONDARY_BUS);
 
   return {
-    'bus': bridgeBus,
-    'slot': slotId,
-    'func': funcId,
+    bus: bridgeBus,
+    slot: slotId,
+    func: funcId,
   };
 }
 
@@ -410,7 +411,7 @@ function locateAcpiDevice (dev) {
  * Provides enumeration services for the whole PCI configuration space
  */
 const pciSpace = ((pciAccessorFactoryArg) => {
-  function checkDevice (bus, slot, func, fn) {
+  function checkDevice(bus, slot, func, fn) {
     const addr = {
       bus,
       slot,
@@ -426,7 +427,7 @@ const pciSpace = ((pciAccessorFactoryArg) => {
     fn(addr, pciAccessor);
   }
 
-  function checkDeviceFunctions (bus, slot, fn) {
+  function checkDeviceFunctions(bus, slot, fn) {
     let func = 0;
     const pciAccessor = pciAccessorFactoryArg.get({
       bus,
@@ -443,7 +444,7 @@ const pciSpace = ((pciAccessorFactoryArg) => {
   }
 
   return {
-    eachDevice (fn) {
+    eachDevice(fn) {
       const func = 0;
 
       for (let bus = 0; bus < 255; ++bus) {
@@ -480,7 +481,7 @@ const codeNameResolver = (() => {
     'Intelligent I/O Controller',
     'Satellite Communication Controller',
     'Encryption/Decryption Controller',
-    'Data Acquisition and Signal Processing Controller'
+    'Data Acquisition and Signal Processing Controller',
   ];
 
   return {
@@ -488,7 +489,7 @@ const codeNameResolver = (() => {
     /**
      * Get name for provided PCI device class code
      */
-    classCodeToName (code) {
+    classCodeToName(code) {
       if (typeof classCodes[code] === 'undefined') {
         return classCodes[0];
       }
@@ -502,7 +503,7 @@ const codeNameResolver = (() => {
  * Represents PCI device of any type
  */
 class PciDevice {
-  constructor (address, pciAccessor) {
+  constructor(address, pciAccessor) {
     this.pciAccessor = pciAccessor;
     const vendorId = pciAccessor.read(pciAccessor.fields().VENDOR_ID);
     const deviceId = pciAccessor.read(pciAccessor.fields().DEVICE_ID);
@@ -515,7 +516,7 @@ class PciDevice {
       isBridge = true;
     }
 
-    const that = { 'acpiDevice': null };
+    const that = { acpiDevice: null };
 
     let irqVector = null;
 
@@ -603,9 +604,9 @@ class PciDevice {
 
       return {
         classCode,
-        'className': codeNameResolver.classCodeToName(classCode),
-        'subclass': pciAccessor.read(pciAccessor.fields().SUBCLASS),
-        'progIf': pciAccessor.read(pciAccessor.fields().PROG_IF),
+        className: codeNameResolver.classCodeToName(classCode),
+        subclass: pciAccessor.read(pciAccessor.fields().SUBCLASS),
+        progIf: pciAccessor.read(pciAccessor.fields().PROG_IF),
       };
     };
 
@@ -615,8 +616,8 @@ class PciDevice {
       }
 
       return {
-        'subsystemId': pciAccessor.read(pciAccessor.generalFields().SUBSYS_ID),
-        'subsystemVendor': pciAccessor.read(pciAccessor.generalFields().SUBSYS_VENDOR),
+        subsystemId: pciAccessor.read(pciAccessor.generalFields().SUBSYS_ID),
+        subsystemVendor: pciAccessor.read(pciAccessor.generalFields().SUBSYS_VENDOR),
       };
     };
 
@@ -636,8 +637,8 @@ class PciDevice {
       }
 
       const barFlag = {
-        'BAR_IO': 0x01,
-        'BAR_64': 0x04,
+        BAR_IO: 0x01,
+        BAR_64: 0x04,
       };
 
       const barField = pciAccessor.generalFields().BAR[indexValue];
@@ -697,10 +698,10 @@ class PciDevice {
       }
 
       return {
-        'type': barType,
+        type: barType,
         base,
         size,
-        'resource': obj,
+        resource: obj,
       };
     };
   }
@@ -708,18 +709,18 @@ class PciDevice {
   /**
      * PCI configuration space command register flags
      */
-  static get commandFlags () {
+  static get commandFlags() {
     return {
-      'IOSpace': 0,
-      'MemorySpace': 1,
-      'BusMaster': 2,
-      'SpecialCycles': 3,
-      'MemoryWriteInvalidate': 4,
-      'VGAPaletteSnoop': 5,
-      'ParityError': 6,
-      'SERR': 8,
-      'BackToBack': 9,
-      'InterruptDisable': 10,
+      IOSpace: 0,
+      MemorySpace: 1,
+      BusMaster: 2,
+      SpecialCycles: 3,
+      MemoryWriteInvalidate: 4,
+      VGAPaletteSnoop: 5,
+      ParityError: 6,
+      SERR: 8,
+      BackToBack: 9,
+      InterruptDisable: 10,
     };
   }
 }
@@ -730,7 +731,7 @@ class PciDevice {
 const pciManager = (() => {
   const devicesMap = new Map();
 
-  function addressHash (address) {
+  function addressHash(address) {
     return JSON.stringify([address.bus, address.slot, address.func]);
   }
 
@@ -740,7 +741,7 @@ const pciManager = (() => {
      * Add new PCI device using its address (bus, slot and function) and
      * PCI configuration space accessor
      */
-    addDevice (address, pciAccessor) {
+    addDevice(address, pciAccessor) {
       const key = addressHash(address);
 
       if (devicesMap.has(key)) throw new Error(`device on the same address already exists ${JSON.stringify(address)}`); // eslint-disable-line max-len
@@ -750,7 +751,7 @@ const pciManager = (() => {
     /**
      * Search for an existing device by its address
      */
-    findDevice (address) {
+    findDevice(address) {
       const key = addressHash(address);
 
       if (!devicesMap.has(key)) {
@@ -763,7 +764,7 @@ const pciManager = (() => {
     /**
      * Iterates over all devices
      */
-    'each': (fn) => devicesMap.forEach(fn),
+    each: fn => devicesMap.forEach(fn),
   };
 })();
 
@@ -887,8 +888,8 @@ pciManager.each((pciDevice) => {
 
     if (bar !== null) {
       barData = {
-        'type': bar.type,
-        'resource': bar.resource,
+        type: bar.type,
+        resource: bar.resource,
       };
     }
 
@@ -901,11 +902,11 @@ pciManager.each((pciDevice) => {
   }
 
   const driverArgs = {
-    'pci': {
-      'bars': argsBars,
-      'irq': irqObject,
-      'classData': pciDevice.classData(),
-      'subsystemData': pciDevice.subsystemData(),
+    pci: {
+      bars: argsBars,
+      irq: irqObject,
+      classData: pciDevice.classData(),
+      subsystemData: pciDevice.subsystemData(),
     },
     allocator,
   };
@@ -948,7 +949,7 @@ pciManager.each((pciDevice) => {
   debug(info);
 });
 
-function listPciDevices () {
+function listPciDevices() {
   const results = [];
 
   pciManager.each((pciDevice) => {
@@ -981,8 +982,8 @@ function listPciDevices () {
 
       if (bar !== null) {
         barData = {
-          'type': bar.type,
-          'resource': bar.resource,
+          type: bar.type,
+          resource: bar.resource,
         };
       }
 
@@ -992,20 +993,20 @@ function listPciDevices () {
     const pins = [null, 'A', 'B', 'C', 'D'];
 
     results.push({
-      'bus': address.bus,
-      'slot': address.slot,
-      'func': address.func,
-      'vendorId': pciDevice.vendorId(),
-      'deviceId': pciDevice.deviceId(),
-      'className': classData.className,
-      'classCode': classData.classCode,
-      'subclass': classData.subclass,
-      'progIf': classData.progIf,
+      bus: address.bus,
+      slot: address.slot,
+      func: address.func,
+      vendorId: pciDevice.vendorId(),
+      deviceId: pciDevice.deviceId(),
+      className: classData.className,
+      classCode: classData.classCode,
+      subclass: classData.subclass,
+      progIf: classData.progIf,
       subsystemData,
       irqVector,
-      'pin': pins[devicePin],
-      'pciAccessor': pciDevice.pciAccessor,
-      'irq': irqObject,
+      pin: pins[devicePin],
+      pciAccessor: pciDevice.pciAccessor,
+      irq: irqObject,
       bars,
     });
   });

@@ -20,6 +20,7 @@
 const typeutils = require('typeutils');
 const assert = require('assert');
 const runtime = require('../../core');
+
 const commands = new Map();
 const stdio = runtime.stdio.defaultStdio;
 const keyboard = require('../../core/keyboard');
@@ -33,13 +34,13 @@ exports.setCommand = (name, cb) => {
 
 exports.getCommands = () => commands.keys();
 
-exports.getDescription = (cmd) => commands.has(cmd)
+exports.getDescription = cmd => (commands.has(cmd)
   ? commands.get(cmd).description
-  : 'Command doesn\'t exist';
+  : 'Command doesn\'t exist');
 
-exports.getUsage = (cmd) => commands.has(cmd)
+exports.getUsage = cmd => (commands.has(cmd)
   ? commands.get(cmd).usage
-  : 'Command doesn\'t exist';
+  : 'Command doesn\'t exist');
 
 exports.runCommand = (name, args, done) => {
   let opts = {};
@@ -58,7 +59,7 @@ exports.runCommand = (name, args, done) => {
   opts.stdio = opts.stdio || runtime.stdio.defaultStdio;
   try {
     commands.get(name).run(stringargs, {
-      'stdio': opts.stdio,
+      stdio: opts.stdio,
       keyboard,
       mouse,
     }, done);
@@ -68,7 +69,7 @@ exports.runCommand = (name, args, done) => {
   }
 };
 
-function prompt () {
+function prompt() {
   stdio.setColor('yellow');
   stdio.write('$');
   stdio.setColor('white');

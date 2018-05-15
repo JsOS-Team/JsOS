@@ -4,7 +4,7 @@ if (Buffer([255]).readUInt32BE(0, true) !== 0xff000000) {
   throw Error('Runtime incompatibility! Bitfield logic assumes 0-padded reads off end of buffer.');
 }
 
-function extend (obj) {
+function extend(obj) {
   Array.prototype.slice.call(arguments, 1).forEach((ext) => {
     Object.keys(ext).forEach((key) => {
       obj[key] = ext[key];
@@ -14,7 +14,7 @@ function extend (obj) {
   return obj;
 }
 
-function addField (ctr, f) {
+function addField(ctr, f) {
   if ('width' in f) {
     ctr.bits = (ctr.bits || 0) + f.width;
     while (ctr.bits > 7) {
@@ -30,14 +30,14 @@ function addField (ctr, f) {
   return ctr;
 }
 
-function arrayizeField (f, count) {
+function arrayizeField(f, count) {
   const f2 = typeof count === 'number' ? extend({
-    'name':  f.name,
-    'field': f,
-    'valueFromBytes' (buf, off) {
+    name: f.name,
+    field: f,
+    valueFromBytes(buf, off) {
       off || (off = {
-        'bytes': 0,
-        'bits':  0,
+        bytes: 0,
+        bits: 0,
       });
       const arr = new Array(count);
 
@@ -47,12 +47,12 @@ function arrayizeField (f, count) {
 
       return arr;
     },
-    'bytesFromValue' (arr, buf, off) {
+    bytesFromValue(arr, buf, off) {
       arr || (arr = new Array(count));
       buf || (buf = new Buffer(this.size));
       off || (off = {
-        'bytes': 0,
-        'bits':  0,
+        bytes: 0,
+        bits: 0,
       });
       for (var idx = 0, len = Math.min(arr.length, count); idx < len; idx += 1) {
         f.bytesFromValue(arr[idx], buf, off);
@@ -61,7 +61,7 @@ function arrayizeField (f, count) {
 
       return buf;
     },
-  }, 'width' in f ? { 'width': f.width * count } : { 'size': f.size * count }) : f;
+  }, 'width' in f ? { width: f.width * count } : { size: f.size * count }) : f;
 
   f2.pack = f2.bytesFromValue;
   f2.unpack = f2.valueFromBytes;
@@ -77,8 +77,8 @@ _.struct = function (name, fields, count) {
   }
 
   let _size = {
-      'bytes': 0,
-      'bits':  0,
+      bytes: 0,
+      bits: 0,
     },
     _padsById = Object.create(null),
     fieldsObj = fields.reduce((obj, f, i) => {
@@ -86,7 +86,7 @@ _.struct = function (name, fields, count) {
         // HACK: we really should just make local copy of *all* fields
         f._id || (f._id = `id${Math.random().toFixed(20)
           .slice(2)}`); // WORKAROUND: https://github.com/tessel/runtime/issues/716
-        const _f = _padsById[f._id] = _size.bits ? { 'width': 8 * (f._padTo - _size.bytes) - _size.bits } : { 'size': f._padTo - _size.bytes };
+        const _f = _padsById[f._id] = _size.bits ? { width: 8 * (f._padTo - _size.bytes) - _size.bits } : { size: f._padTo - _size.bytes };
 
         if (_f.width < 0 || _f.size < 0) {
           const xtraMsg = _size.bits ? ` and ${_size.bits} bits` : '';
@@ -94,21 +94,23 @@ _.struct = function (name, fields, count) {
           throw Error(`Invalid .padTo(${f._padTo}) field, struct is already ${_size.bytes} byte(s)${xtraMsg}!`);
         }
         f = _f;
-      } else if (f._hoistFields) Object.keys(f._hoistFields).forEach((name) => {
-        const _f = Object.create(f._hoistFields[name]);
+      } else if (f._hoistFields) {
+        Object.keys(f._hoistFields).forEach((name) => {
+          const _f = Object.create(f._hoistFields[name]);
 
-        if ('width' in _f) _f.offset = {
-          'bytes': _f.offset.bytes + _size.bytes,
-          'bits':  _f.offset.bits,
-        };
-        else _f.offset += _size.bytes;
-        obj[name] = _f;
-      });
-      else if (f.name) {
+          if ('width' in _f) {
+            _f.offset = {
+              bytes: _f.offset.bytes + _size.bytes,
+              bits: _f.offset.bits,
+            };
+          } else _f.offset += _size.bytes;
+          obj[name] = _f;
+        });
+      } else if (f.name) {
         f = Object.create(f); // local overrides
         f.offset = 'width' in f ? {
-          'bytes': _size.bytes,
-          'bits':  _size.bits,
+          bytes: _size.bytes,
+          bits: _size.bits,
         } : _size.bytes,
         obj[f.name] = f;
       }
@@ -120,10 +122,10 @@ _.struct = function (name, fields, count) {
   if (_size.bits) throw Error(`Improperly aligned bitfield at end of struct: ${name}`);
 
   return arrayizeField({
-    'valueFromBytes' (buf, off) {
+    valueFromBytes(buf, off) {
       off || (off = {
-        'bytes': 0,
-        'bits':  0,
+        bytes: 0,
+        bits: 0,
       });
       const obj = new Object();
 
@@ -138,12 +140,12 @@ _.struct = function (name, fields, count) {
 
       return obj;
     },
-    'bytesFromValue' (obj, buf, off) {
+    bytesFromValue(obj, buf, off) {
       obj || (obj = {});
       buf || (buf = new Buffer(this.size));
       off || (off = {
-        'bytes': 0,
-        'bits':  0,
+        bytes: 0,
+        bits: 0,
       });
       fields.forEach((f) => {
         if ('_padTo' in f) return addField(off, _padsById[f._id]);
@@ -155,15 +157,15 @@ _.struct = function (name, fields, count) {
 
       return buf;
     },
-    '_hoistFields': !name ? fieldsObj : null,
-    'fields':       fieldsObj,
-    'size':         _size.bytes,
+    _hoistFields: !name ? fieldsObj : null,
+    fields: fieldsObj,
+    size: _size.bytes,
     name,
   }, count);
 };
 
 _.padTo = function (off) {
-  return { '_padTo': off };
+  return { _padTo: off };
 };
 
 
@@ -171,7 +173,7 @@ _.padTo = function (off) {
 
 const FULL = 0xFFFFFFFF;
 
-function bitfield (name, width, count) {
+function bitfield(name, width, count) {
   width || (width = 1);
   // NOTE: width limitation is so all values will align *within* a 4-byte word
   if (width > 24) throw Error('Bitfields support a maximum width of 24 bits.');
@@ -179,10 +181,10 @@ function bitfield (name, width, count) {
     mask = FULL >>> 32 - width;
 
   return arrayizeField({
-    'valueFromBytes' (buf, off) {
+    valueFromBytes(buf, off) {
       off || (off = {
-        'bytes': 0,
-        'bits':  0,
+        bytes: 0,
+        bits: 0,
       });
       let end = (off.bits || 0) + width,
         word = buf.readUInt32BE(off.bytes, true) || 0,
@@ -192,11 +194,11 @@ function bitfield (name, width, count) {
 
       return impl.b2v.call(this, over & mask);
     },
-    'bytesFromValue' (val, buf, off) {
+    bytesFromValue(val, buf, off) {
       val = impl.v2b.call(this, val || 0);
       off || (off = {
-        'bytes': 0,
-        'bits':  0,
+        bytes: 0,
+        bits: 0,
       });
       let end = (off.bits || 0) + width,
         word = buf.readUInt32BE(off.bytes, true) || 0,
@@ -216,7 +218,7 @@ function bitfield (name, width, count) {
   }, count);
 }
 
-function swapBits (n, w) {
+function swapBits(n, w) {
   let o = 0;
 
   while (w--) {
@@ -231,39 +233,38 @@ function swapBits (n, w) {
 
 _.bool = function (name, count) {
   return bitfield.call({
-    'b2v' (b) {
+    b2v(b) {
       return Boolean(b);
     },
-    'v2b' (v) {
+    v2b(v) {
       return v ? FULL : 0;
     },
   }, name, 1, count);
-
 };
 _.ubit = bitfield.bind({
-  'b2v' (b) {
+  b2v(b) {
     return b;
   },
-  'v2b' (v) {
+  v2b(v) {
     return v;
   },
 });
 _.ubitLE = bitfield.bind({
-  'b2v' (b) {
+  b2v(b) {
     return swapBits(b, this.width);
   },
-  'v2b' (v) {
+  v2b(v) {
     return swapBits(v, this.width);
   },
 });
 _.sbit = bitfield.bind({ // TODO: handle sign bit…
-  'b2v' (b) {
+  b2v(b) {
     let m = 1 << this.width - 1,
       s = b & m;
 
     return s ? -(b &= ~m) : b;
   },
-  'v2b' (v) {
+  v2b(v) {
     let m = 1 << this.width - 1,
       s = v < 0;
 
@@ -272,7 +273,7 @@ _.sbit = bitfield.bind({ // TODO: handle sign bit…
 });
 
 
-function bytefield (name, size, count) {
+function bytefield(name, size, count) {
   if (typeof name !== 'string') {
     count = size;
     size = name;
@@ -282,10 +283,10 @@ function bytefield (name, size, count) {
   const impl = this;
 
   return arrayizeField({
-    'valueFromBytes' (buf, off) {
+    valueFromBytes(buf, off) {
       off || (off = {
-        'bytes': 0,
-        'bits':  0,
+        bytes: 0,
+        bits: 0,
       });
       const val = buf.slice(off.bytes, off.bytes + this.size);
 
@@ -293,8 +294,8 @@ function bytefield (name, size, count) {
 
       return impl.b2v.call(this, val);
     },
-    'bytesFromValue' (val, buf, off) {
-      off || (off = { 'bytes': 0 });
+    bytesFromValue(val, buf, off) {
+      off || (off = { bytes: 0 });
       buf || (buf = new Buffer(this.size));
       let blk = buf.slice(off.bytes, off.bytes + this.size),
         len = impl.vTb.call(this, val, blk);
@@ -310,7 +311,7 @@ function bytefield (name, size, count) {
 }
 
 // http://stackoverflow.com/a/7460958/72637
-function swapBytesPairs (fromBuffer, toBuffer) {
+function swapBytesPairs(fromBuffer, toBuffer) {
   toBuffer = toBuffer || fromBuffer;
   const l = fromBuffer.length;
 
@@ -325,10 +326,10 @@ function swapBytesPairs (fromBuffer, toBuffer) {
 }
 
 _.byte = bytefield.bind({
-  'b2v' (b) {
+  b2v(b) {
     return b;
   },
-  'vTb' (v, b) {
+  vTb(v, b) {
     if (!v) return 0; v.copy(b);
 
     return v.length;
@@ -336,13 +337,13 @@ _.byte = bytefield.bind({
 });
 
 _.char = bytefield.bind({
-  'b2v' (b) {
+  b2v(b) {
     let v = b.toString('utf8'),
       z = v.indexOf('\0');
 
     return ~z ? v.slice(0, z) : v;
   },
-  'vTb' (v, b) {
+  vTb(v, b) {
     v || (v = '');
 
     return b.write(v, 'utf8');
@@ -350,13 +351,13 @@ _.char = bytefield.bind({
 });
 
 _.char16le = bytefield.bind({
-  'b2v' (b) {
+  b2v(b) {
     let v = b.toString('utf16le'),
       z = v.indexOf('\0');
 
     return ~z ? v.slice(0, z) : v;
   },
-  'vTb' (v, b) {
+  vTb(v, b) {
     v || (v = '');
 
     return b.write(v, 'utf16le');
@@ -364,7 +365,7 @@ _.char16le = bytefield.bind({
 });
 
 _.char16be = bytefield.bind({
-  'b2v' (b) {
+  b2v(b) {
     const temp = new Buffer(b.length);
 
     swapBytesPairs(b, temp);
@@ -373,7 +374,7 @@ _.char16be = bytefield.bind({
 
     return ~z ? v.slice(0, z) : v;
   },
-  'vTb' (v, b) {
+  vTb(v, b) {
     v || (v = '');
     const len = b.write(v, 'utf16le');
 
@@ -383,7 +384,7 @@ _.char16be = bytefield.bind({
   },
 });
 
-function standardField (sig, size) {
+function standardField(sig, size) {
   let read = `read${sig}`,
     dump = `write${sig}`;
 
@@ -396,18 +397,18 @@ function standardField (sig, size) {
     }
 
     return arrayizeField({
-      'valueFromBytes' (buf, off) {
-        off || (off = { 'bytes': 0 });
+      valueFromBytes(buf, off) {
+        off || (off = { bytes: 0 });
         const val = buf[read](off.bytes);
 
         addField(off, this);
 
         return val;
       },
-      'bytesFromValue' (val, buf, off) {
+      bytesFromValue(val, buf, off) {
         val || (val = 0);
         buf || (buf = new Buffer(this.size));
-        off || (off = { 'bytes': 0 });
+        off || (off = { bytes: 0 });
         buf[dump](val, off.bytes);
         addField(off, this);
 
@@ -445,14 +446,14 @@ _.derive = function (orig, pack, unpack) {
     }
 
     return arrayizeField(extend({
-      'valueFromBytes' (buf, off) {
+      valueFromBytes(buf, off) {
         return unpack(orig.valueFromBytes(buf, off));
       },
-      'bytesFromValue' (val, buf, off) {
+      bytesFromValue(val, buf, off) {
         return orig.bytesFromValue(pack(val), buf, off);
       },
       name,
-    }, 'width' in orig ? { 'width': orig.width } : { 'size': orig.size }), count);
+    }, 'width' in orig ? { width: orig.width } : { size: orig.size }), count);
   };
 };
 

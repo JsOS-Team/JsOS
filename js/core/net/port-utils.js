@@ -16,4 +16,4 @@
 
 const isint = require('isint');
 
-exports.isPort = (port) => isint.uint16(port) && port !== 0;
+exports.isPort = port => isint.uint16(port) && port !== 0;

@@ -7,36 +7,38 @@ dir.iterator = function (dirChain, opts) {
   opts || (opts = {});
 
   const cache = {
-    'buffer': null,
-    'n':      null,
+    buffer: null,
+    n: null,
   };
 
-  function getSectorBuffer (n, cb) {
+  function getSectorBuffer(n, cb) {
     if (cache.n === n) cb(null, cache.buffer);
-    else cache.n = cache.buffer = null, dirChain.readSectors(n, Buffer(dirChain.sectorSize), (e, d) => {
-      if (e) cb(e);
-      else if (!d) return cb(null, null);
-      else {
-        cache.n = n;
-        cache.buffer = d;
-        getSectorBuffer(n, cb);
-      }
-    });
+    else {
+      cache.n = cache.buffer = null, dirChain.readSectors(n, Buffer(dirChain.sectorSize), (e, d) => {
+        if (e) cb(e);
+        else if (!d) return cb(null, null);
+        else {
+          cache.n = n;
+          cache.buffer = d;
+          getSectorBuffer(n, cb);
+        }
+      });
+    }
   }
 
   let secIdx = 0,
-    off = { 'bytes': 0 },
+    off = { bytes: 0 },
     long = null;
 
-  function getNextEntry (cb) {
+  function getNextEntry(cb) {
     if (off.bytes >= dirChain.sectorSize) {
       secIdx += 1;
       off.bytes -= dirChain.sectorSize;
     }
     const entryPos = {
-      'chain':  dirChain,
-      'sector': secIdx,
-      'offset': off.bytes,
+      chain: dirChain,
+      sector: secIdx,
+      offset: off.bytes,
     };
 
     getSectorBuffer(secIdx, (e, buf) => {
@@ -50,10 +52,12 @@ dir.iterator = function (dirChain, opts) {
       else if (signalByte === S.entryFreeFlag) {
         off.bytes += S.dirEntry.size;
         long = null;
-        if (opts.includeFree) return cb(null, {
-          '_free': true,
-          '_pos':  entryPos,
-        }, entryPos);
+        if (opts.includeFree) {
+          return cb(null, {
+            _free: true,
+            _pos: entryPos,
+          }, entryPos);
+        }
 
         return getNextEntry(cb); // usually just skip these
       }
@@ -71,10 +75,10 @@ dir.iterator = function (dirChain, opts) {
           firstEntry = true;
           entry.Ord &= ~S.lastLongFlag;
           long = {
-            'name': -1,
-            'sum':  entry.Chksum,
-            '_rem': entry.Ord - 1,
-            '_arr': [],
+            name: -1,
+            sum: entry.Chksum,
+            _rem: entry.Ord - 1,
+            _arr: [],
           };
         }
         if (firstEntry || long && entry.Chksum === long.sum && entry.Ord === long._rem--) {
@@ -137,7 +141,7 @@ dir.iterator = function (dirChain, opts) {
     });
   }
 
-  function iter (cb) {
+  function iter(cb) {
     getNextEntry(cb);
 
     return iter; // TODO: previous value can't be re-used, so why make caller re-assign?
@@ -146,7 +150,7 @@ dir.iterator = function (dirChain, opts) {
   return iter;
 };
 
-function _updateEntry (vol, entry, newStats) {
+function _updateEntry(vol, entry, newStats) {
   if ('size' in newStats) entry._size = entry.FileSize = newStats.size;
 
   if ('_touch' in newStats) newStats.archive = newStats.atime = newStats.mtime = true;
@@ -154,18 +158,18 @@ function _updateEntry (vol, entry, newStats) {
 
   let _now;
 
-  function applyDate (d, prefix, timeToo, tenthToo) {
+  function applyDate(d, prefix, timeToo, tenthToo) {
     if (d === true) d = _now || (_now = new Date());
     entry[`${prefix}Date`] = {
-      'year':  d.getFullYear() - 1980,
-      'month': d.getMonth() + 1,
-      'day':   d.getDate(),
+      year: d.getFullYear() - 1980,
+      month: d.getMonth() + 1,
+      day: d.getDate(),
     };
     if (timeToo) {
       entry[`${prefix}Time`] = {
-        'hours':     d.getHours(),
-        'minutes':   d.getMinutes(),
-        'seconds_2': d.getSeconds() >>> 1,
+        hours: d.getHours(),
+        minutes: d.getMinutes(),
+        seconds_2: d.getSeconds() >>> 1,
       };
       if (tenthToo) {
         const msec = d.getSeconds() % 2 * 1000 + d.getMilliseconds();
@@ -257,12 +261,12 @@ dir.makeStat = function (vol, entry) {
   stats.uid = vol.opts.uid;
   stats.gid = vol.opts.gid;
 
-  function extractDate (prefix) {
+  function extractDate(prefix) {
     let date = entry[`${prefix}Date`],
       time = entry[`${prefix}Time`] || {
-        'hours':     0,
-        'minutes':   0,
-        'seconds_2': 0,
+        hours: 0,
+        minutes: 0,
+        seconds_2: 0,
       },
       secs = time.seconds_2 * 2,
       sect = entry[`${prefix}TimeTenth`] || 0;
@@ -279,7 +283,7 @@ dir.makeStat = function (vol, entry) {
   stats.ctime = extractDate('Crt');
 
   entry = { // keep immutable copy (with only the fields we need)
-    'Attr': _.extend({}, entry.Attr),
+    Attr: _.extend({}, entry.Attr),
   };
 
   return stats;
@@ -289,21 +293,21 @@ dir.init = function (vol, dirInfo, cb) {
   let dirChain = dirInfo.chain,
     isRootDir = 'numSectors' in dirChain, // HACK: all others would be a clusterChain
     initialCluster = Buffer(dirChain.sectorSize * vol._sectorsPerCluster),
-    entriesOffset = { 'bytes': 0 };
+    entriesOffset = { bytes: 0 };
 
   initialCluster.fill(0);
-  function writeEntry (name, clusterNum) {
+  function writeEntry(name, clusterNum) {
     while (name.length < 8) name += ' ';
     S.dirEntry.bytesFromValue(_updateEntry(vol, {
-      'Name': {
-        'filename':  name,
-        'extension': '   ',
+      Name: {
+        filename: name,
+        extension: '   ',
       },
-      'Attr': { 'directory': true },
+      Attr: { directory: true },
     }, {
-      'firstCluster': clusterNum,
-      '_touch':       true,
-      'ctime':        true,
+      firstCluster: clusterNum,
+      _touch: true,
+      ctime: true,
     }), initialCluster, entriesOffset);
   }
   if (!isRootDir) {
@@ -323,9 +327,9 @@ dir.addFile = function (vol, dirChain, entryInfo, opts, cb) {
     mainEntry;
 
   entries.push(mainEntry = {
-    'Name':  _.shortname(name),
-    'Attr':  { 'directory': opts.dir || false },
-    '_name': name,
+    Name: _.shortname(name),
+    Attr: { directory: opts.dir || false },
+    _name: name,
   });
   if (1 || mainEntry.Name._lossy) { // HACK: always write long names until `._lossy` is more useful!
     const workaroundTessel427 = '\uFFFF'.length !== 1;
@@ -344,14 +348,16 @@ dir.addFile = function (vol, dirChain, entryInfo, opts, cb) {
     let off = 0,
       ord = 1;
 
-    while (off < name.length) entries.push({
-      'Ord':      ord++,
-      'Name1':    name.slice(off, off += S_lde_f.Name1.size / 2),
-      'Attr_raw': S.longDirFlag,
-      'Chksum':   null,
-      'Name2':    name.slice(off, off += S_lde_f.Name2.size / 2),
-      'Name3':    name.slice(off, off += S_lde_f.Name3.size / 2),
-    });
+    while (off < name.length) {
+      entries.push({
+        Ord: ord++,
+        Name1: name.slice(off, off += S_lde_f.Name1.size / 2),
+        Attr_raw: S.longDirFlag,
+        Chksum: null,
+        Name2: name.slice(off, off += S_lde_f.Name2.size / 2),
+        Name3: name.slice(off, off += S_lde_f.Name3.size / 2),
+      });
+    }
     entries[entries.length - 1].Ord |= S.lastLongFlag;
   }
 
@@ -374,10 +380,10 @@ dir.addFile = function (vol, dirChain, entryInfo, opts, cb) {
     // TODO: finalize initial properties… (via `opts.mode` instead?)
 
     _updateEntry(vol, mainEntry, {
-      'firstCluster': fileCluster,
-      'size':         0,
-      'ctime':        true,
-      '_touch':       true,
+      firstCluster: fileCluster,
+      size: 0,
+      ctime: true,
+      _touch: true,
     });
     mainEntry._pos = _.adjustedPos(vol, entryInfo.target, S.dirEntry.size * (entries.length - 1));
     entries.slice(1).forEach((entry) => {
@@ -387,7 +393,7 @@ dir.addFile = function (vol, dirChain, entryInfo, opts, cb) {
     if (entryInfo.lastEntry) entries.push({});
 
     let entriesData = new Buffer(S.dirEntry.size * entries.length),
-      dataOffset = { 'bytes': 0 };
+      dataOffset = { bytes: 0 };
 
     entries.forEach((entry) => {
       const entryType = 'Ord' in entry ? S.longDirEntry : S.dirEntry;
@@ -409,15 +415,16 @@ dir.findInDirectory = function (vol, dirChain, name, opts, cb) {
     tailName = opts.prepareForCreate ? _.shortname(name) : null,
     maxTail = 0;
 
-  function processNext (next) {
+  function processNext(next) {
     next = next((e, d, entryPos) => {
       if (e) cb(e);
-      else if (!d) cb(S.err.NOENT(), {
-        'tail':      maxTail,
-        'target':    entryPos,
-        'lastEntry': true,
-      });
-      else if (d._free) processNext(next); // TODO: look for long enough reusable run
+      else if (!d) {
+        cb(S.err.NOENT(), {
+          tail: maxTail,
+          target: entryPos,
+          lastEntry: true,
+        });
+      } else if (d._free) processNext(next); // TODO: look for long enough reusable run
       else if (d._name.toUpperCase() === matchName) return cb(null, d._full());
       else if (!opts.prepareForCreate) processNext(next);
       else {
@@ -437,7 +444,7 @@ dir.findInDirectory = function (vol, dirChain, name, opts, cb) {
       }
     });
   }
-  processNext(dir.iterator(dirChain, { 'includeFree': 0 && opts.prepareForCreate }));
+  processNext(dir.iterator(dirChain, { includeFree: 0 && opts.prepareForCreate }));
 };
 
 dir.updateEntry = function (vol, entry, newStats, cb) {

@@ -20,49 +20,49 @@ const AVAILABLE_RING_INDEX_RING = 2;
 const VRING_AVAIL_F_NO_INTERRUPT = 1;
 
 class AvailableRing {
-  constructor (buffer, byteOffset, ringSize) {
+  constructor(buffer, byteOffset, ringSize) {
     this.availableRing = new Uint16Array(buffer, byteOffset, ringSize + 3);
     this.ringSize = ringSize;
     this.AVAILABLE_RING_INDEX_USED_EVENT = 2 + ringSize;
     this.availableRing[AVAILABLE_RING_INDEX_IDX] = 0;
   }
 
-  readIdx () {
+  readIdx() {
     return this.availableRing[AVAILABLE_RING_INDEX_IDX];
   }
 
-  incrementIdx () {
+  incrementIdx() {
     ++this.availableRing[AVAILABLE_RING_INDEX_IDX];
   }
 
-  setEventIdx (value) {
+  setEventIdx(value) {
     this.availableRing[this.AVAILABLE_RING_INDEX_USED_EVENT] = value >>> 0;
   }
 
-  setRing (index, value) {
+  setRing(index, value) {
     this.availableRing[AVAILABLE_RING_INDEX_RING + index] = value;
   }
 
-  placeDescriptor (index) {
+  placeDescriptor(index) {
     const available = (this.readIdx() & this.ringSize - 1) >>> 0;
 
     this.setRing(available, index);
     this.incrementIdx();
   }
 
-  readDescriptorAsDevice (idxIndex) {
+  readDescriptorAsDevice(idxIndex) {
     return this.availableRing[AVAILABLE_RING_INDEX_RING + idxIndex];
   }
 
-  disableInterrupts () {
+  disableInterrupts() {
     this.availableRing[AVAILABLE_RING_INDEX_FLAGS] = VRING_AVAIL_F_NO_INTERRUPT;
   }
 
-  enableInterrupts () {
+  enableInterrupts() {
     this.availableRing[AVAILABLE_RING_INDEX_FLAGS] = 0;
   }
 
-  printDebug () {
+  printDebug() {
     console.log('AVAILABLE RING:');
     console.log(`  idx = ${this.readIdx()}, wrapped ${this.readIdx() & this.ringSize - 1}`);
     for (let i = 0; i < this.ringSize; ++i) console.log(`  ${i}: descriptor = ${this.readDescriptorAsDevice(i)}`); // eslint-disable-line max-len

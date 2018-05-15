@@ -1,13 +1,13 @@
 const _ = require('./helpers.js');
 
 exports.wrapDriver = function (volume, opts) {
-  opts = _.extend({ 'maxSectors': 2048 }, opts);
+  opts = _.extend({ maxSectors: 2048 }, opts);
 
   let cache = {},
     advice = 'NORMAL',
     secSize = volume.sectorSize;
 
-  function _freezeBuffer (b) {
+  function _freezeBuffer(b) {
     const f = new Buffer(b.length);
 
     b.copy(f);
@@ -15,7 +15,7 @@ exports.wrapDriver = function (volume, opts) {
     return f;
   }
 
-  function addToCache (i, data) {
+  function addToCache(i, data) {
     if (advice === 'SEQUENTIAL' || advice === 'NOREUSE') return;
     data = _freezeBuffer(data);
     cache[i] = data;
@@ -34,26 +34,28 @@ exports.wrapDriver = function (volume, opts) {
   }
 
   return {
-    'sectorSize': volume.sectorSize,
-    'numSectors': volume.numSectors,
-    'advice' (val) {
+    sectorSize: volume.sectorSize,
+    numSectors: volume.numSectors,
+    advice(val) {
       if (!arguments.length) return advice;
       advice = val;
       if (advice === 'SEQUENTIAL' || advice === 'NOREUSE') cache = {};
 
       return this;
     },
-    'readSectors' (i, dest, cb) {
+    readSectors(i, dest, cb) {
       // TODO: handle having partial parts of dest!
       if (i in cache && dest.length === secSize) {
         cache[i].copy(dest);
         setImmediate(cb);
-      } else volume.readSectors(i, dest, (e) => {
-        if (e) cb(e);
-        else addToCache(i, dest), cb();
-      });
+      } else {
+        volume.readSectors(i, dest, (e) => {
+          if (e) cb(e);
+          else addToCache(i, dest), cb();
+        });
+      }
     },
-    'writeSectors': !volume.writeSectors ? null : function (i, data, cb) {
+    writeSectors: !volume.writeSectors ? null : function (i, data, cb) {
       volume.writeSectors(i, data, (e) => {
         if (e) cb(e);
         else addToCache(i, data), cb();

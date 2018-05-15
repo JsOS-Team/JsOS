@@ -17,7 +17,7 @@ const bootBase = _.struct([
   _.uint16le('SecPerTrk'),
   _.uint16le('NumHeads'),
   _.uint32le('HiddSec'),
-  _.uint32le('TotSec32')
+  _.uint32le('TotSec32'),
 ]);
 
 const bootInfo = _.struct([
@@ -26,12 +26,12 @@ const bootInfo = _.struct([
   _.uint8('BootSig'),
   _.uint32le('VolID'),
   _.char('VolLab', 11),
-  _.char('FilSysType', 8)
+  _.char('FilSysType', 8),
 ]);
 
 exports.boot16 = _.struct([
   bootBase,
-  bootInfo
+  bootInfo,
 ]);
 
 exports.boot32 = _.struct([
@@ -41,28 +41,28 @@ exports.boot32 = _.struct([
     _.ubit('NumActiveFAT', 4),
     _.ubit('_reserved1', 3),
     _.bool('MirroredFAT'),
-    _.ubit('_reserved2', 8)
+    _.ubit('_reserved2', 8),
   ].reverse()),
   _.struct('FSVer', [
     _.uint8('Major'),
-    _.uint8('Minor')
+    _.uint8('Minor'),
   ]),
   _.uint32le('RootClus'),
   _.uint16le('FSInfo'),
   _.uint16le('BkBootSec'),
   _.byte('Reserved', 12),
-  bootInfo
+  bootInfo,
 ]);
 
 
 let _time = _.struct([
     _.ubit('hours', 5),
     _.ubit('minutes', 6),
-    _.ubit('seconds_2', 5)
+    _.ubit('seconds_2', 5),
   ]),
   time = {
-    'valueFromBytes' (buf, off) {
-      off || (off = { 'bytes': 0 });
+    valueFromBytes(buf, off) {
+      off || (off = { bytes: 0 });
 
       let _buf = new Buffer([buf[off.bytes + 1], buf[off.bytes + 0]]),
         val = _time.valueFromBytes(_buf);
@@ -71,14 +71,14 @@ let _time = _.struct([
 
       return val;
     },
-    'bytesFromValue' (val, buf, off) {
+    bytesFromValue(val, buf, off) {
       val || (val = {
-        'hours':     0,
-        'minutes':   0,
-        'seconds_2': 0,
+        hours: 0,
+        minutes: 0,
+        seconds_2: 0,
       });
       buf || (buf = new Buffer(this.size));
-      off || (off = { 'bytes': 0 });
+      off || (off = { bytes: 0 });
 
       const _buf = _time.bytesFromValue(val);
 
@@ -88,17 +88,17 @@ let _time = _.struct([
 
       return buf;
     },
-    'size': _time.size,
+    size: _time.size,
   };
 
 let _date = _.struct([
     _.ubit('year', 7),
     _.ubit('month', 4),
-    _.ubit('day', 5)
+    _.ubit('day', 5),
   ]),
   date = {
-    'valueFromBytes' (buf, off) {
-      off || (off = { 'bytes': 0 });
+    valueFromBytes(buf, off) {
+      off || (off = { bytes: 0 });
 
       let _buf = new Buffer([buf[off.bytes + 1], buf[off.bytes + 0]]),
         val = _date.valueFromBytes(_buf);
@@ -107,14 +107,14 @@ let _date = _.struct([
 
       return val;
     },
-    'bytesFromValue' (val, buf, off) {
+    bytesFromValue(val, buf, off) {
       val || (val = {
-        'year':  0,
-        'month': 0,
-        'day':   0,
+        year: 0,
+        month: 0,
+        day: 0,
       });
       buf || (buf = new Buffer(this.size));
-      off || (off = { 'bytes': 0 });
+      off || (off = { bytes: 0 });
 
       const _buf = _date.bytesFromValue(val);
 
@@ -124,13 +124,13 @@ let _date = _.struct([
 
       return buf;
     },
-    'size': _date.size,
+    size: _date.size,
   };
 
 exports.dirEntry = _.struct([
   _.struct('Name', [
     _.char('filename', 8),
-    _.char('extension', 3)
+    _.char('extension', 3),
   ]),
   _.struct('Attr', [
     _.bool('readonly'),
@@ -139,7 +139,7 @@ exports.dirEntry = _.struct([
     _.bool('volume_id'),
     _.bool('directory'),
     _.bool('archive'),
-    _.ubit('reserved', 2)
+    _.ubit('reserved', 2),
   ].reverse()),
   _.byte('NTRes', 1),
   _.uint8('CrtTimeTenth'),
@@ -150,7 +150,7 @@ exports.dirEntry = _.struct([
   _.struct('WrtTime', [time]),
   _.struct('WrtDate', [date]),
   _.uint16le('FstClusLO'),
-  _.uint32le('FileSize')
+  _.uint32le('FileSize'),
 ]);
 exports.entryDoneFlag = 0x00;
 exports.entryFreeFlag = 0xE5;
@@ -159,9 +159,9 @@ exports.entryIsE5Flag = 0x05;
 exports.dirEntry_simple = _.struct([
   _.struct('Name', [
     _.char('filename', 8),
-    _.char('extension', 3)
+    _.char('extension', 3),
   ]),
-  _.padTo(exports.dirEntry.size)
+  _.padTo(exports.dirEntry.size),
 
   /*
     _.uint8('Attr_raw'),
@@ -186,56 +186,56 @@ exports.longDirEntry = _.struct([
   _.uint8('Chksum'),
   _.char16le('Name2', 12),
   _.uint16le('FstClusLO'),
-  _.char16le('Name3', 4)
+  _.char16le('Name3', 4),
 ]);
 
 if (exports.longDirEntry.size !== exports.dirEntry.size) throw Error('Structs ain\'t right!');
 
 exports.fatField = {
-  'fat12': _.struct('Status', [
+  fat12: _.struct('Status', [
     _.ubit('field0bc', 8),
     _.ubit('field1c', 4),
     _.ubit('field0a', 4),
-    _.ubit('field1ab', 8)
+    _.ubit('field1ab', 8),
   ]),
-  'fat16': _.uint16le('Status'),
-  'fat32': _.uint32le('Status'), // more properly this 4 bits reserved + uint28le
+  fat16: _.uint16le('Status'),
+  fat32: _.uint32le('Status'), // more properly this 4 bits reserved + uint28le
 };
 
 exports.fatPrefix = {
-  'fat12': 0xF00,
-  'fat16': 0xFF00,
-  'fat32': 0x0FFFFF00,
+  fat12: 0xF00,
+  fat16: 0xFF00,
+  fat32: 0x0FFFFF00,
 };
 
 exports.fatStat = {
-  'free':   0x00,
-  '_undef': 0x01,
-  'rsvMin': 0xF0,
-  'bad':    0xF7,
-  'eofMin': 0xF8,
-  'eof':    0xFF,
+  free: 0x00,
+  _undef: 0x01,
+  rsvMin: 0xF0,
+  bad: 0xF7,
+  eofMin: 0xF8,
+  eof: 0xFF,
 };
 
 exports._I = {
-  'RUSR': 0400,
-  'WUSR': 0200,
-  'XUSR': 0100,
+  RUSR: 0400,
+  WUSR: 0200,
+  XUSR: 0100,
 
-  'RGRP': 0040,
-  'WGRP': 0020,
-  'XGRP': 0010,
+  RGRP: 0040,
+  WGRP: 0020,
+  XGRP: 0010,
 
-  'ROTH': 0004,
-  'WOTH': 0002,
-  'XOTH': 0001,
+  ROTH: 0004,
+  WOTH: 0002,
+  XOTH: 0001,
 
-  'SUID': 04000,
-  'SGID': 02000,
-  'SVTX': 01000,
+  SUID: 04000,
+  SGID: 02000,
+  SVTX: 01000,
 
-  'FDIR': 040000,
-  'FREG': 0100000,
+  FDIR: 040000,
+  FREG: 0100000,
 };
 
 exports._I.RWXU = exports._I.RUSR | exports._I.WUSR | exports._I.XUSR;
@@ -245,21 +245,21 @@ exports._I._sss = exports._I.SUID | exports._I.SGID | exports._I.SVTX;
 exports._I._chmoddable = exports._I.RWXU | exports._I.RWXG | exports._I.RWXO | exports._I._sss;
 
 const _errors = {
-  'IO':          'Input/output error',
-  'NOENT':       'No such file or directory',
-  'INVAL':       'Invalid argument',
-  'EXIST':       'File exists',
-  'NAMETOOLONG': 'Filename too long',
-  'NOSPC':       'No space left on device',
-  'NOSYS':       'Function not supported',
-  'ROFS':        'ROFLCopter file system',
-  'NOTDIR':      'Not a directory',
-  'BADF':        'Bad file descriptor',
-  'EXIST':       'File exists',
-  'ISDIR':       'Is a directory',
-  'ACCES':       'Permission denied',
-  'NOSYS':       'Function not implemented',
-  '_TODO':       'Not implemented yet!',
+  IO: 'Input/output error',
+  NOENT: 'No such file or directory',
+  INVAL: 'Invalid argument',
+  EXIST: 'File exists',
+  NAMETOOLONG: 'Filename too long',
+  NOSPC: 'No space left on device',
+  NOSYS: 'Function not supported',
+  ROFS: 'ROFLCopter file system',
+  NOTDIR: 'Not a directory',
+  BADF: 'Bad file descriptor',
+  EXIST: 'File exists',
+  ISDIR: 'Is a directory',
+  ACCES: 'Permission denied',
+  NOSYS: 'Function not implemented',
+  _TODO: 'Not implemented yet!',
 };
 
 exports.err = {};

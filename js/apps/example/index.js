@@ -5,7 +5,7 @@
 
 let io;
 
-function main (api, res) {
+function main(api, res) {
   io = api.stdio;
   io.setColor('green');
   io.writeLine('It works!!!');

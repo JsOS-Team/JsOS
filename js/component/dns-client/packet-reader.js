@@ -15,33 +15,33 @@
 'use strict';
 
 class PacketReader {
-  constructor (buf, len = buf.byteLength, offset) {
+  constructor(buf, len = buf.byteLength, offset) {
     this.buf = buf;
     this.len = len;
     this.offset = 0;
     this.view = new DataView(buf, offset, len);
   }
-  readUint8 () {
+  readUint8() {
     return this.view.getUint8(this.offset++);
   }
-  readUint16 () {
+  readUint16() {
     const value = this.view.getUint16(this.offset, false);
 
     this.offset += 2;
 
     return value;
   }
-  readUint32 () {
+  readUint32() {
     const value = this.view.getUint32(this.offset, false);
 
     this.offset += 4;
 
     return value;
   }
-  getOffset () {
+  getOffset() {
     return this.offset;
   }
-  setOffset (offset) {
+  setOffset(offset) {
     this.offset = offset;
   }
 }

@@ -28,8 +28,10 @@ module.exports = (intf, destIP, viaIP, type, code, headerValue, u8data) => {
 
   const srcIP = intf.ipAddr;
 
-  ip4header.write(u8headers, ipOffset, ip4header.PROTOCOL_ICMP, srcIP, destIP,
-    ip4header.minHeaderLength + icmpHeader.headerLength + u8data.length);
+  ip4header.write(
+    u8headers, ipOffset, ip4header.PROTOCOL_ICMP, srcIP, destIP,
+    ip4header.minHeaderLength + icmpHeader.headerLength + u8data.length,
+  );
   icmpHeader.write(u8headers, icmpOffset, type, code, headerValue);
 
   const ckHeader = checksum.buffer(u8headers, icmpOffset, icmpHeader.headerLength);

@@ -5,16 +5,16 @@
 
 'use strict';
 
-function main (cmd, args, api, res) {
+function main(cmd, args, api, res) {
   const io = api.stdio;
 
-  if (args === 'interfaces'){
+  if (args === 'interfaces') {
     const interfaces = require('../../core/net/interfaces');
 
     try {
-      var arr = interfaces.getAll();
-      arr.forEach(function (item, i, arr) {
-        io.writeLine(i + ': ' + item.name);
+      const arr = interfaces.getAll();
+      arr.forEach((item, i, arr) => {
+        io.writeLine(`${i}: ${item.name}`);
       });
     } catch (err) {
       io.setColor('red');
@@ -22,7 +22,6 @@ function main (cmd, args, api, res) {
 
       return res(1);
     }
-
   } else if (args === '') {
     io.setColor('red');
     io.writeLine('NetInfo testing tool.');
@@ -36,8 +35,8 @@ function main (cmd, args, api, res) {
     const netstat = require('../../core/net/net-stat');
 
     try {
-      var receiveCount = netstat.receiveCount;
-      var transmitCount = netstat.transmitCount;
+      const receiveCount = netstat.receiveCount;
+      const transmitCount = netstat.transmitCount;
       io.writeLine(`'Receive: ${receiveCount}'`);
       io.writeLine(`'Transmit: ${transmitCount}'`);
     } catch (err) {
@@ -46,12 +45,12 @@ function main (cmd, args, api, res) {
 
       return res(1);
     }
-  } else if (args === 'ip'){
+  } else if (args === 'ip') {
     const ip = require('../../core/net/ip4-address');
 
-    var IPLoopback = ip.LOOPBACK;
-    var IPAny = ip.ANY;
-    var IPBroadcast = ip.BROADCAST;
+    const IPLoopback = ip.LOOPBACK;
+    const IPAny = ip.ANY;
+    const IPBroadcast = ip.BROADCAST;
     io.writeLine(`'IPV4 Loopback: ${IPLoopback}'`);
     io.writeLine(`'IPV4 Any: ${IPAny}'`);
     io.writeLine(`'IPV4 Broadcast: ${IPBroadcast}'`);
@@ -61,9 +60,8 @@ function main (cmd, args, api, res) {
 
     var MACBroadcast = mac.BROADCAST;
     io.writeLine(`'MAC Broadcast: ${MACBroadcast}'`); */
-
   } else {
-    io.setColor('red')
+    io.setColor('red');
     io.writeLine(`'Invalid argument : ${args}'`);
 
     return res(1);

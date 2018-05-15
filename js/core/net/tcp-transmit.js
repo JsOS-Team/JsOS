@@ -30,8 +30,10 @@ module.exports = (intf, destIP, viaIP, srcPort, destPort, seqNumber, ackNumber, 
 
   const srcIP = intf.ipAddr;
 
-  ip4header.write(u8headers, ipOffset, ip4header.PROTOCOL_TCP, srcIP, destIP,
-    ip4header.minHeaderLength + tcpHeader.headerLength + dataLength);
+  ip4header.write(
+    u8headers, ipOffset, ip4header.PROTOCOL_TCP, srcIP, destIP,
+    ip4header.minHeaderLength + tcpHeader.headerLength + dataLength,
+  );
   tcpHeader.write(u8headers, tcpOffset, srcPort, destPort, seqNumber, ackNumber, flags, windowSize);
 
   const sum = (destIP.a << 8 | destIP.b) + (destIP.c << 8 | destIP.d) +

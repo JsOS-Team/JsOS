@@ -4,23 +4,23 @@ const Vim = require('./js-vim');
 const fs = require('fs');
 
 let vim = null;
-let kb  = null;
-let io  = null;
+let kb = null;
+let io = null;
 let res = null;
 
 const kbaliases = {
-  'enter':     '\n',
-  'tab':       '\t',
-  'backspace': '\b',
-  'space':     ' ',
-  'escape':    'esc',
-  'kpup':      'k', // '↑'
-  'kpdown':    'j', // '↓'
-  'kpleft':    'h', // '←'
-  'kpright':   'l', // '→'
+  enter: '\n',
+  tab: '\t',
+  backspace: '\b',
+  space: ' ',
+  escape: 'esc',
+  kpup: 'k', // '↑'
+  kpdown: 'j', // '↓'
+  kpleft: 'h', // '←'
+  kpright: 'l', // '→'
 };
 
-function keyboard (key) {
+function keyboard(key) {
   if (key.type === 'kppagedown') {
     kb.onKeydown.remove(keyboard);
 
@@ -35,12 +35,12 @@ function keyboard (key) {
   return false;
 }
 
-function exit () {
+function exit() {
   kb.onKeydown.remove(keyboard);
   res(0);
 }
 
-function main (app, strargs, api, cb) {
+function main(app, strargs, api, cb) {
   vim = new Vim();
 
   require('./lib/commands')(vim, exit);

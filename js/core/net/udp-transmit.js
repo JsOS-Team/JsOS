@@ -29,8 +29,10 @@ module.exports = (intf, destIP, viaIP, srcPort, destPort, u8data) => {
 
   const srcIP = intf.ipAddr;
 
-  ip4header.write(u8headers, ipOffset, ip4header.PROTOCOL_UDP, srcIP, destIP,
-    ip4header.minHeaderLength + udpHeader.headerLength + u8data.length);
+  ip4header.write(
+    u8headers, ipOffset, ip4header.PROTOCOL_UDP, srcIP, destIP,
+    ip4header.minHeaderLength + udpHeader.headerLength + u8data.length,
+  );
   udpHeader.write(u8headers, udpOffset, srcPort, destPort, datagramLength);
 
   const sum = (destIP.a << 8 | destIP.b) + (destIP.c << 8 | destIP.d) +

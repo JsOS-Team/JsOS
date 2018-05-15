@@ -18,11 +18,11 @@ const typeutils = require('typeutils');
 const { SystemError } = require('./errors');
 const fsmod = require('../core/fs');
 
-function makeErrorNotFound (path, op) {
+function makeErrorNotFound(path, op) {
   return new SystemError(`no such file or directory, ${op} '${path}'`, 'ENOENT');
 }
 
-function normalizePath (components) {
+function normalizePath(components) {
   const r = [];
 
   for (const p of components) {
@@ -46,7 +46,7 @@ function normalizePath (components) {
 
 // This function assumes current directory '/'. It is not
 // possible to change it.
-function toAbsolutePath (path) {
+function toAbsolutePath(path) {
   if (typeof path !== 'string') {
     return null;
   }
@@ -61,7 +61,7 @@ function toAbsolutePath (path) {
   return `/${n.join('/')}`;
 }
 
-function readFileImpl (fnName, path, opts) {
+function readFileImpl(fnName, path, opts) {
   if (!typeutils.isString(path)) {
     throw new Error('path is not a string');
   }

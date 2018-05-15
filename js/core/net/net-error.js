@@ -23,7 +23,7 @@ const errs = [
   'E_TYPEDARRAY_EXPECTED',
   'E_IPADDRESS_EXPECTED',
   'E_INTERFACE_EXPECTED',
-  'E_CANNOT_CLOSE'
+  'E_CANNOT_CLOSE',
 ];
 
 for (const err of errs) {

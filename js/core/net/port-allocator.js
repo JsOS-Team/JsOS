@@ -24,22 +24,22 @@ const EPHEMERAL_PORT_COUNT = 16000;
 assert(isint.uint16(EPHEMERAL_PORT_FIRST + EPHEMERAL_PORT_COUNT));
 
 class PortAllocator {
-  constructor () {
+  constructor() {
     this._searchStart = 0;
     this._allocated = 0;
     this._sockets = [];
     this._map = null;
   }
 
-  get allocatedCount () {
+  get allocatedCount() {
     return this._allocated;
   }
 
-  isEphemeralRange (port) {
+  isEphemeralRange(port) {
     return port >= EPHEMERAL_PORT_FIRST && port < EPHEMERAL_PORT_FIRST + EPHEMERAL_PORT_COUNT;
   }
 
-  allocEphemeral (socket) {
+  allocEphemeral(socket) {
     if (this._searchStart < this._sockets.length) {
       for (let i = this._searchStart, l = this._sockets.length; i < l; ++i) {
         if (this._sockets[i] === null && (this._map !== null ? !this._map.has(EPHEMERAL_PORT_FIRST + i) : true)) {
@@ -68,7 +68,7 @@ class PortAllocator {
     return 0;
   }
 
-  allocPort (port, socket) {
+  allocPort(port, socket) {
     assert(portUtils.isPort(port));
     if (this.lookup(port)) {
       return false;
@@ -83,7 +83,7 @@ class PortAllocator {
     return true;
   }
 
-  free (port) {
+  free(port) {
     assert(portUtils.isPort(port));
 
     if (this._map !== null && this._map.has(port)) {
@@ -121,7 +121,7 @@ class PortAllocator {
     }
   }
 
-  lookup (port) {
+  lookup(port) {
     if (this._map !== null && this._map.has(port)) {
       return this._map.get(port);
     }

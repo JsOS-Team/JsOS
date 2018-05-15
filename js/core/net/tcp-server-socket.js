@@ -17,7 +17,7 @@
 const TCPSocket = require('./tcp-socket');
 
 class TCPServerSocket {
-  constructor () {
+  constructor() {
     this.listeningSocket = new TCPSocket();
     this.onconnect = null;
     this.onlisten = null;
@@ -27,20 +27,20 @@ class TCPServerSocket {
     this.listeningSocket._onconnect = (socket) => {
       socket.onopen = () => this.onconnect && this.onconnect(socket);
     };
-    this.listeningSocket.onerror = (err) => this.onerror && this.onerror(err);
+    this.listeningSocket.onerror = err => this.onerror && this.onerror(err);
     this.listeningSocket.onclose = () => this.onclose && this.onclose();
   }
-  get localPort () {
+  get localPort() {
     return this._port;
   }
-  listen (port) {
+  listen(port) {
     this.listeningSocket._listen(port);
     this._port = this.listeningSocket._port;
     if (this.onlisten) {
       this.onlisten(this._port);
     }
   }
-  close () {
+  close() {
     this.listeningSocket.close();
   }
 }

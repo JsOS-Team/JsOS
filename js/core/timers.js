@@ -31,4 +31,4 @@ setInterval(() => {
  *
  * @param {function} fn Function to run
  */
-exports.scheduleTask5s = (fn) => tasks5s.push(fn);
+exports.scheduleTask5s = fn => tasks5s.push(fn);

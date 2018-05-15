@@ -15,13 +15,12 @@ let originalCursorPosition = false,
 module.exports = {
 
   /* Keys that pass through visual mode. Motion, mostly.  */
-  '/^((?![1-9])(?!esc|x|d|y|i|a|J|c|>|<|~|g~|gu|gU).*[^1-9]+.*)/' (keys, vim, res) {
+  '/^((?![1-9])(?!esc|x|d|y|i|a|J|c|>|<|~|g~|gu|gU).*[^1-9]+.*)/': function (keys, vim, res) {
     // Remember we're in the process of selecting
     this.curDoc.selecting = true;
 
     // "I" in visual block
     if (this.submode === 'block') {
-
       /* if(keys === '$') {
 				var sel = this.curDoc.selection();
 				var firstPoint = ('line' in sel[0]) ? sel[0] : sel[0][0];
@@ -42,7 +41,7 @@ module.exports = {
 				}
 				this.curDoc.selection(newSelection);
 				return;
-			}*/
+			} */
       if (keys === 'C') {
         this.exec('$');
         this.exec('c');
@@ -124,7 +123,8 @@ module.exports = {
       let curLine = range[0].line;
       const lastLine = range[1].line;
       // The first col of the selection
-      let firstCol, lastCol;
+      let firstCol,
+        lastCol;
 
       if (range[1].char <= range[0].char) {
         firstCol = range[1].char - 1;
@@ -151,14 +151,14 @@ module.exports = {
 
         blockRange.push([
           {
-            'line': curLine,
-            'char': firstCol,
-            'col':  firstCol,
+            line: curLine,
+            char: firstCol,
+            col: firstCol,
           }, {
-            'line': curLine,
-            'char': lastLineCol,
-            'col':  lastLineCol,
-          }
+            line: curLine,
+            char: lastLineCol,
+            col: lastLineCol,
+          },
         ]);
         curLine++;
       }
@@ -172,7 +172,6 @@ module.exports = {
     // Assuming we can, move back to visual mode after executing.
     // If we can't, must trust the mode to return us.
     if (this.modeName === 'command') this.mode('visual');
-
   },
 
   /* OPERATORS
@@ -180,7 +179,7 @@ module.exports = {
 
 	*/
 
-  '/^c$/' () {
+  '/^c$/': function () {
     if (this.submode === 'block') {
       let newSelection = JSON.parse(JSON.stringify(this.curDoc.selection()));
 
@@ -206,7 +205,7 @@ module.exports = {
   },
 
   /* delete */
-  '/^d$/' () {
+  '/^d$/': function () {
     const sel = this.curDoc.selection();
 
     this.exec('y');
@@ -246,11 +245,10 @@ module.exports = {
     }
     doc.cursor.char(range[0].char);
     this.exec('esc');
-
   },
 
   /* yank */
-  '/^y$/' () {
+  '/^y$/': function () {
     const selection = this.curDoc.getRange(this.curDoc.selection());
     const index = this.currentRegister;
 
@@ -261,13 +259,13 @@ module.exports = {
   },
 
   /* swap case */
-  '/^~$/' () {
+  '/^~$/': function () {
     this.exec('g~');
   },
 
 
   /* swap case */
-  '/^g~$/' () {
+  '/^g~$/': function () {
     let selection = this.curDoc.selection();
 
     if (!selection[0].length) {
@@ -291,7 +289,7 @@ module.exports = {
   },
 
   /* make lowercase */
-  '/^gu$/' () {
+  '/^gu$/': function () {
     let selection = this.curDoc.selection();
 
     if (!selection[0].length) {
@@ -315,7 +313,7 @@ module.exports = {
   },
 
   /* make uppercase */
-  '/^gU$/' () {
+  '/^gU$/': function () {
     let selection = this.curDoc.selection();
 
     if (!selection[0].length) {
@@ -339,20 +337,20 @@ module.exports = {
   },
 
   /* filter through an external program */
-  '/^!$/' () {},
+  '/^!$/': function () {},
 
 
   /* filter through 'equalprg' */
-  '/^=$/' () {},
+  '/^=$/': function () {},
 
   /* text formatting */
-  '/^gq$/' () {},
+  '/^gq$/': function () {},
 
   /* ROT13 encoding */
-  '/^g?$/' () {},
+  '/^g?$/': function () {},
 
   /* shift right */
-  '/^>$/' () {
+  '/^>$/': function () {
     const selection = this.curDoc.selection();
     let ct = selection[1].line - selection[0].line + 1;
 
@@ -370,32 +368,32 @@ module.exports = {
   },
 
   /* shift left */
-  '/^<$/' () {
+  '/^<$/': function () {
 
   },
 
   /* define a fold */
-  '/^zf$/' () {
+  '/^zf$/': function () {
 
   },
 
   /* call function set with the 'operatorfunc' option */
-  '/^g@$/' () {
+  '/^g@$/': function () {
 
   },
 
   // Inner select
-  '/^([1-9]+[0-9]*)?(a|i)(w|W|s|S|p|\\]|\\[|\\(|\\)|b|>|<|t|\\{|\\}|"|\'|`)$/' (keys, vim, match) {
+  '/^([1-9]+[0-9]*)?(a|i)(w|W|s|S|p|\\]|\\[|\\(|\\)|b|>|<|t|\\{|\\}|"|\'|`)$/': function (keys, vim, match) {
     const outer = match[2] === 'a';
     let count = 1;
 
     if (match[1] && match[1].length) count = parseInt(match[1]);
     let boundaries = [];
     const boundaryMap = {
-      'w': ['b', 'e'],
-      'W': ['F ', 'f '],
+      w: ['b', 'e'],
+      W: ['F ', 'f '],
       '"': ['F"', 'f"'],
-      's': ['(', ')'],
+      s: ['(', ')'],
       '(': ['F(', 'f)'],
     };
 
@@ -431,11 +429,9 @@ module.exports = {
 
       if (moveIn) this.exec('h');
     }
-
-
   },
 
-  '/^esc/' (keys, vim) {
+  '/^esc/': function (keys, vim) {
     // Grab the last selection. Shitty to be cloning like this, but TODO fix.
     this.lastSelection = JSON.parse(JSON.stringify(this.curDoc.selection()));
     this.rangeStart = false;
@@ -446,11 +442,11 @@ module.exports = {
     this.submode = false;
   },
 
-  '/^(x)$/' (keys, vim) {
+  '/^(x)$/': function (keys, vim) {
     this.exec('d');
   },
 
-  '/^(J)$/' (keys, vim) {
+  '/^(J)$/': function (keys, vim) {
     const range = this.curDoc.selection();
     let ct = range[1].line - range[0].line || 1; // do first join ANYWAYS
 

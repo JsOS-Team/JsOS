@@ -15,11 +15,12 @@
 'use strict';
 
 const { setNameHandle } = require('./block-device-interface');
+
 const availableBuses = Object.create(null); // not using a Map because the buses should be easy to access directly
 const availableDevices = [];
 
 module.exports = {
-  registerDevice (device) {
+  registerDevice(device) {
     if (!availableBuses[device.bus]) availableBuses[device.bus] = [];
     const i = availableDevices.push(device) - 1;
 
@@ -28,10 +29,10 @@ module.exports = {
 
     console.log(`[block] registered block device ${device.name}`);
   },
-  getDevices () {
+  getDevices() {
     return availableDevices;
   },
-  getBuses () {
+  getBuses() {
     return availableBuses;
   },
 };

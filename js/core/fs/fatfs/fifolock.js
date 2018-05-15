@@ -1,10 +1,10 @@
 // very simple FIFO serial queue (plus callback wrapper), helps you call `fn`s in order
 
-module.exports = function SerialQueue () {
+module.exports = function SerialQueue() {
   let q = {},
     tasks = [];
 
-  function runNext () {
+  function runNext() {
     tasks[0](() => {
       tasks.shift(); // TODO: avoid?
       if (tasks.length) runNext();
@@ -32,7 +32,7 @@ module.exports = function SerialQueue () {
     let capturedCB,
       finish = 'preRelease' in this ? this.preRelease.bind(q, _finish) : _finish;
 
-    function _finish () {
+    function _finish() {
       capturedCB();
       _releaseQueue();
     }

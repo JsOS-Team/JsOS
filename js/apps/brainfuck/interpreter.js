@@ -5,7 +5,7 @@
 'use strict';
 
 class Brainfuck {
-  constructor () {
+  constructor() {
     this._input = [];
     this._output = [];
     this._data = [];
@@ -16,23 +16,23 @@ class Brainfuck {
     // this.ops =
   }
 
-  get ops () {
+  get ops() {
     const self = this;
 
     return {
-      '+' () {
+      '+': function () {
         self._data[self._ptr] = self._data[self._ptr] || 0;
         self._data[self._ptr]++;
         self.debug('+', self._data[self._ptr], self._ptr);
       },
 
-      '-' () {
+      '-': function () {
         self._data[self._ptr] = self._data[self._ptr] || 0;
         self._data[self._ptr]--;
         self.debug('-', self._data[self._ptr], self._ptr);
       },
 
-      '<' () {
+      '<': function () {
         self._ptr--;
         if (self._ptr < 0) {
           self._ptr = 0; // Don't allow pointer to leave data array
@@ -40,19 +40,19 @@ class Brainfuck {
         self.debug('<', self._ptr);
       },
 
-      '>' () {
+      '>': function () {
         self._ptr++;
         self.debug('>', self._ptr);
       },
 
-      '.' () {
+      '.': function () {
         const c = String.fromCharCode(self._data[self._ptr]);
 
         self._output.push(c);
         self.debug('.', c, self._data[self._ptr]);
       },
 
-      ',' () {
+      ',': function () {
         const c = self._input.shift();
 
         if (typeof c === 'string') {
@@ -63,13 +63,13 @@ class Brainfuck {
     };
   }
 
-  parse (str) {
+  parse(str) {
     this._programChars = str.split('');
 
     return this.parseProgram();
   }
 
-  parseProgram () {
+  parseProgram() {
     const nodes = [];
     let nextChar;
 
@@ -87,7 +87,7 @@ class Brainfuck {
     return this.program(nodes);
   }
 
-  program (nodes) {
+  program(nodes) {
     const self = this;
 
     return function (inputString) {
@@ -106,7 +106,7 @@ class Brainfuck {
   }
 
 
-  loop (nodes) {
+  loop(nodes) {
     const self = this;
 
     return function () {
@@ -124,11 +124,11 @@ class Brainfuck {
     };
   }
 
-  parseLoop () {
+  parseLoop() {
     const nodes = [];
     let nextChar;
 
-    while (this._programChars[0] != ']') {
+    while (this._programChars[0] !== ']') {
       nextChar = this._programChars.shift();
       if (typeof nextChar === 'undefined') {
         throw new Error('Missing closing bracket');
@@ -142,7 +142,6 @@ class Brainfuck {
 
     return this.loop(nodes);
   }
-
 }
 
 module.exports = Brainfuck;

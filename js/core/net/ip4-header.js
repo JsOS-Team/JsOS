@@ -17,6 +17,7 @@
 const IP4Address = require('./ip4-address');
 const checksum = require('./checksum');
 const u8view = require('u8-view');
+
 const minHeaderLength = 20;
 
 let nextId = 1;
@@ -25,23 +26,27 @@ exports.PROTOCOL_ICMP = 0x01;
 exports.PROTOCOL_TCP = 0x06;
 exports.PROTOCOL_UDP = 0x11;
 
-exports.getSrcIP = (u8, headerOffset) => new IP4Address(u8[headerOffset + 12],
+exports.getSrcIP = (u8, headerOffset) => new IP4Address(
+  u8[headerOffset + 12],
   u8[headerOffset + 13],
   u8[headerOffset + 14],
-  u8[headerOffset + 15]);
+  u8[headerOffset + 15],
+);
 
-exports.getDestIP = (u8, headerOffset) => new IP4Address(u8[headerOffset + 16],
+exports.getDestIP = (u8, headerOffset) => new IP4Address(
+  u8[headerOffset + 16],
   u8[headerOffset + 17],
   u8[headerOffset + 18],
-  u8[headerOffset + 19]);
+  u8[headerOffset + 19],
+);
 
 exports.getProtocolId = (u8, headerOffset) => u8[headerOffset + 9];
 exports.getHeaderLength = (u8, headerOffset) => (u8[headerOffset] & 0xf) << 2;
 exports.getFragmentationData = (u8, headerOffset) => u8view.getUint16BE(u8, headerOffset + 6);
 exports.getIdentification = (u8, headerOffset) => u8view.getUint16BE(u8, headerOffset + 4);
-exports.fragmentationDataIsMoreFragments = (value) => Boolean(value >>> 13 & 0x1);
-exports.fragmentationDataIsDontFragment = (value) => Boolean(value >>> 14 & 0x1);
-exports.fragmentationDataOffset = (value) => (value & 0x1fff) * 8;
+exports.fragmentationDataIsMoreFragments = value => Boolean(value >>> 13 & 0x1);
+exports.fragmentationDataIsDontFragment = value => Boolean(value >>> 14 & 0x1);
+exports.fragmentationDataOffset = value => (value & 0x1fff) * 8;
 
 exports.minHeaderLength = minHeaderLength;
 

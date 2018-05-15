@@ -28,7 +28,7 @@ const prefix = [
   '                                       ',
   '                                       ',
   '                                       ',
-  '                                       '
+  '                                       ',
 ];
 
 const root = [
@@ -50,7 +50,7 @@ const root = [
   0,
   0,
   0,
-  0
+  0,
 ];
 
 const suffix = [
@@ -76,10 +76,10 @@ const suffix = [
   0,
   0,
   0,
-  0
+  0,
 ];
 
-function main (cmd, args, api, res) {
+function main(cmd, args, api, res) {
   io = api.stdio;
   for (const i in prefix) { // eslint-disable-line
     io.setColor('cyan');

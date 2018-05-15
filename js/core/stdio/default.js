@@ -16,6 +16,7 @@
 
 const tty = require('../tty');
 const StdioInterface = require('./interface');
+
 const defaultStdio = new StdioInterface();
 
 let fgcolor = tty.color.WHITE;
@@ -24,7 +25,7 @@ let bgcolor = tty.color.BLACK;
 defaultStdio.getColor = () => fgcolor;
 defaultStdio.getBgColor = () => bgcolor;
 
-defaultStdio.onwrite = (text) => tty.print(text, 1, fgcolor, bgcolor);
+defaultStdio.onwrite = text => tty.print(text, 1, fgcolor, bgcolor);
 
 defaultStdio.onclear = tty.clear;
 
@@ -49,13 +50,13 @@ defaultStdio.onsetbackgroundcolor = (bg) => {
 };
 
 defaultStdio.onmoveto = (x, y) => tty.moveTo(x, y);
-defaultStdio.onmoveoffset = (offset) => tty.moveOffset(offset);
+defaultStdio.onmoveoffset = offset => tty.moveOffset(offset);
 
-defaultStdio.onread = (cb) => tty.read(cb);
+defaultStdio.onread = cb => tty.read(cb);
 
-defaultStdio.onreadline = (cb) => tty.readLine(cb);
+defaultStdio.onreadline = cb => tty.readLine(cb);
 
-defaultStdio.onwriteerror = (error) => tty.print(error, 1, tty.color.RED);
+defaultStdio.onwriteerror = error => tty.print(error, 1, tty.color.RED);
 
 defaultStdio.print = defaultStdio.onwrite;
 defaultStdio.error = defaultStdio.error;

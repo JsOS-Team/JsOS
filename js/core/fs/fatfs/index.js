@@ -15,12 +15,12 @@ exports.createFileSystem = function (volume, opts, cb) {
   }
   opts = _.extend({
     // c.f. https://www.kernel.org/doc/Documentation/filesystems/vfat.txt
-    'ro':      false,
-    'noatime': true,
-    'modmode': 0o111, // or `07000`
-    'umask':   'umask' in process ? process.umask() : 0o022,
-    'uid':     'getuid' in process ? process.getuid() : 0,
-    'gid':     'getgid' in process ? process.getgid() : 0,
+    ro: false,
+    noatime: true,
+    modmode: 0o111, // or `07000`
+    umask: 'umask' in process ? process.umask() : 0o022,
+    uid: 'getuid' in process ? process.getuid() : 0,
+    gid: 'getgid' in process ? process.getgid() : 0,
   }, opts);
   if (!volume.writeSectors) opts.ro = true;
   if (opts.ro) opts.noatime = true; // natch
@@ -32,11 +32,11 @@ exports.createFileSystem = function (volume, opts, cb) {
     q = fifolock();
 
   const GROUP = _.log.level < _.log.INFO ? q.TRANSACTION_WRAPPER.bind({
-    postAcquire (proceed) {
+    postAcquire(proceed) {
       _.log(_.log.DBG, '=== Starting GROUP ===');
       proceed();
     },
-    preRelease (finish) {
+    preRelease(finish) {
       _.log(_.log.DBG, '=== Finishing GROUP ===');
       finish();
     },
@@ -64,30 +64,30 @@ exports.createFileSystem = function (volume, opts, cb) {
 
   if (cb) fs.on('error', cb).on('ready', cb.bind(null, null));
 
-  function init (bootSector) {
+  function init(bootSector) {
     vol = require('./vol.js').init(volume, opts, bootSector);
     fs._dirIterator = dir.iterator.bind(dir);
 
     let entryInfoByPath = {},
       baseEntry = {
-        '_refs': 0,
-        _record () {
+        _refs: 0,
+        _record() {
           entryInfoByPath[this.path] = this;
           if (this.parent) this.parent.retain();
 
           return this;
         },
-        retain () {
+        retain() {
           if (!this._refs) this._record();
           this._refs += 1;
 
           return this;
         },
-        release () {
+        release() {
           this._refs -= 1;
           if (!this._refs) this._rescind();
         },
-        _rescind () {
+        _rescind() {
           if (this.parent) this.parent.release();
           delete entryInfoByPath[this.path];
         },
@@ -95,14 +95,14 @@ exports.createFileSystem = function (volume, opts, cb) {
 
     fs._createSharedEntry = function (path, entry, chain, parent) {
       return _.extend(Object.create(baseEntry), {
-        '_refs': 0, // WORKAROUND: https://github.com/tessel/beta/issues/455
+        _refs: 0, // WORKAROUND: https://github.com/tessel/beta/issues/455
         path,
         entry,
         chain,
         parent,
       }).retain();
     };
-    fs._createSharedEntry('/', { 'Attr': { 'directory': true }}, vol.rootDirectoryChain);
+    fs._createSharedEntry('/', { Attr: { directory: true } }, vol.rootDirectoryChain);
     fs._sharedEntryForSteps = function (steps, opts, cb) { // NOTE: may `cb` before returning!
       let path = steps.join('/') || '/',
         name = steps.pop(), // n.b.
@@ -116,11 +116,12 @@ exports.createFileSystem = function (volume, opts, cb) {
           else {
             dir.findInDirectory(vol, parentInfo.chain, name, opts, (e, entry) => {
               if (e && !opts.prepareForCreate) cb(e);
-              else if (e) cb(e, {
-                'missingChild': _.extend(entry, { name }),
-                'parent':       parentInfo,
-              });
-              else cb(null, fs._createSharedEntry(path, entry, vol.chainForCluster(entry._firstCluster), parentInfo));
+              else if (e) {
+                cb(e, {
+                  missingChild: _.extend(entry, { name }),
+                  parent: parentInfo,
+                });
+              } else cb(null, fs._createSharedEntry(path, entry, vol.chainForCluster(entry._firstCluster), parentInfo));
             });
           }
         });
@@ -134,7 +135,7 @@ exports.createFileSystem = function (volume, opts, cb) {
   }
 
 
-  /** ** ---- CORE API ---- ****/
+  /** ** ---- CORE API ---- *** */
 
   // NOTE: we really don't share namespace, but avoid first three anyway…
   const fileDescriptors = [null, null, null];
@@ -147,20 +148,20 @@ exports.createFileSystem = function (volume, opts, cb) {
     }
     cb = GROUP(cb, () => {
       let _fd = {
-          'flags': null,
-          'entry': null,
-          'chain': null,
-          'pos':   0,
+          flags: null,
+          entry: null,
+          chain: null,
+          pos: 0,
         },
         f = _.parseFlags(flags);
 
       if (vol.opts.ro && (f.write || f.create || f.truncate)) return _.delayedCall(cb, S.err.ROFS());
       _fd.flags = f;
 
-      fs._sharedEntryForSteps(_.absoluteSteps(path), { 'prepareForCreate': f.create }, (e, info) => {
+      fs._sharedEntryForSteps(_.absoluteSteps(path), { prepareForCreate: f.create }, (e, info) => {
         if (e && !(e.code === 'NOENT' && f.create && info)) cb(e);
         else if (e) {
-          fs._addFile(info.parent.chain, info.missingChild, { 'dir': f._openDir }, (e, newEntry, newChain) => {
+          fs._addFile(info.parent.chain, info.missingChild, { dir: f._openDir }, (e, newEntry, newChain) => {
             if (e) cb(e);
             else finish(fs._createSharedEntry(_.absolutePath(path), newEntry, newChain, info.parent));
           });
@@ -168,7 +169,7 @@ exports.createFileSystem = function (volume, opts, cb) {
         else if (info.entry.Attr.directory && !f._openDir) cb(S.err.ISDIR());
         else if (f.write && info.entry.Attr.readonly) cb(S.err.ACCES());
         else finish(info);
-        function finish (fileInfo) {
+        function finish(fileInfo) {
           const fd = fileDescriptors.push(_fd) - 1;
 
           _fd.info = fileInfo;
@@ -201,10 +202,12 @@ exports.createFileSystem = function (volume, opts, cb) {
 
       if (!_fd || !_fd.flags.write) _.delayedCall(cb, S.err.BADF());
       // NOTE: ctime would get touched on POSIX; but we map that to create time!
-      else fs._updateEntry(_fd.entry, {
-        'atime': atime || true,
-        'mtime': mtime || true,
-      }, cb);
+      else {
+        fs._updateEntry(_fd.entry, {
+          atime: atime || true,
+          mtime: mtime || true,
+        }, cb);
+      }
     }, _n_ === '_nested_');
   };
 
@@ -236,8 +239,8 @@ exports.createFileSystem = function (volume, opts, cb) {
         if (_.workaroundTessel380) _buf.copy(buf, off); // WORKAROUND: https://github.com/tessel/beta/issues/380
         _fd.pos = _pos + bytes;
         if (e || vol.opts.noatime) finish(e);
-        else fs._updateEntry(_fd.entry, { 'atime': true }, finish);
-        function finish (e) {
+        else fs._updateEntry(_fd.entry, { atime: true }, finish);
+        function finish(e) {
           cb(e, bytes, buf);
         }
       });
@@ -253,7 +256,7 @@ exports.createFileSystem = function (volume, opts, cb) {
         let entryNames = [],
           getNextEntry = fs._dirIterator(_fd.chain);
 
-        function processNext () {
+        function processNext() {
           getNextEntry((e, d) => {
             if (e) cb(e);
             else if (!d && !entryNames.length) cb(null, entryNames); // WORKAROUND: https://github.com/tessel/beta/issues/435
@@ -301,8 +304,8 @@ exports.createFileSystem = function (volume, opts, cb) {
         _fd.pos = _pos + len;
         let newSize = Math.max(_fd.entry._size, _fd.pos),
           newInfo = {
-            'size':   newSize,
-            '_touch': true,
+            size: newSize,
+            _touch: true,
           };
 
         fs._updateEntry(_fd.entry, newInfo, (ee) => {
@@ -319,8 +322,8 @@ exports.createFileSystem = function (volume, opts, cb) {
       if (!_fd || !_fd.flags.write) _.delayedCall(cb, S.err.BADF());
 
       const newStats = {
-        'size':   len,
-        '_touch': true,
+        size: len,
+        _touch: true,
       };
         // NOTE: we order operations for best state in case of only partial success
 
@@ -370,13 +373,13 @@ exports.createFileSystem = function (volume, opts, cb) {
   let workaroundTessel436;
 
   try {
-    new require('stream').Readable({ 'encoding': 'utf8' });
-    new streams.Readable({ 'encoding': 'utf8' });
+    new require('stream').Readable({ encoding: 'utf8' });
+    new streams.Readable({ encoding: 'utf8' });
   } catch (e) {
     workaroundTessel436 = true;
   }
 
-  function _createStream (StreamType, path, opts) {
+  function _createStream(StreamType, path, opts) {
     // [NOT REALLY A] WORKAROUND: https://github.com/tessel/beta/issues/436
     if (workaroundTessel436 && 'encoding' in opts) {
       console.warn('Tessel does not currently support encoding option for Readable streams, discarding!');
@@ -400,7 +403,7 @@ exports.createFileSystem = function (volume, opts, cb) {
       });
     }
 
-    function autoClose (tombstone) { // NOTE: assumes caller will clear `fd`
+    function autoClose(tombstone) { // NOTE: assumes caller will clear `fd`
       if (opts.autoClose) {
         fs.close(fd, (e) => {
           if (e) stream.emit('error', e);
@@ -416,10 +419,11 @@ exports.createFileSystem = function (volume, opts, cb) {
         // TODO: optimize to fetch at least a full sector regardless of `n`…
 
         n = Math.min(n, opts.end - pos);
-        if (fd === '_opening_') stream.once('open', () => {
-          stream._read(n);
-        });
-        else if (pos > opts.end) stream.push(null);
+        if (fd === '_opening_') {
+          stream.once('open', () => {
+            stream._read(n);
+          });
+        } else if (pos > opts.end) stream.push(null);
         else if (n > 0) {
           buf = new Buffer(n), fs.read(fd, buf, 0, n, pos, (e, n, d) => {
             if (e) {
@@ -437,10 +441,11 @@ exports.createFileSystem = function (volume, opts, cb) {
       stream.bytesWritten = 0;
 
       stream._write = function (data, _enc, cb) {
-        if (fd === '_opening_') stream.once('open', () => {
-          stream._write(data, null, cb);
-        });
-        else {
+        if (fd === '_opening_') {
+          stream.once('open', () => {
+            stream._write(data, null, cb);
+          });
+        } else {
           fs.write(fd, data, 0, data.length, pos, (e, n) => {
             if (e) {
               autoClose('_write_error_');
@@ -463,34 +468,34 @@ exports.createFileSystem = function (volume, opts, cb) {
 
   fs.createReadStream = function (path, opts) {
     return _createStream(streams.Readable, path, _.extend({
-      'start':     0,
-      'end':       Infinity,
-      'flags':     'r',
-      'mode':      0o666,
-      'encoding':  null,
-      'fd':        null, // ??? see https://github.com/joyent/node/issues/7708
-      'autoClose': true,
+      start: 0,
+      end: Infinity,
+      flags: 'r',
+      mode: 0o666,
+      encoding: null,
+      fd: null, // ??? see https://github.com/joyent/node/issues/7708
+      autoClose: true,
     }, opts));
   };
 
   fs.createWriteStream = function (path, opts) {
     return _createStream(streams.Writable, path, _.extend({
-      'start':     0,
-      'flags':     'w',
-      'mode':      0o666,
+      start: 0,
+      flags: 'w',
+      mode: 0o666,
       // encoding: null,   // see https://github.com/joyent/node/issues/7710
-      'fd':        null, // ??? see https://github.com/joyent/node/issues/7708
-      'autoClose': true,
+      fd: null, // ??? see https://github.com/joyent/node/issues/7708
+      autoClose: true,
     }, opts, {
-      'decodeStrings': true,
-      'objectMode':    false,
+      decodeStrings: true,
+      objectMode: false,
     }));
   };
 
 
   /* PATH WRAPPERS (albeit the only public interface for some folder operations) */
 
-  function _fdOperation (path, opts, fn, cb) {
+  function _fdOperation(path, opts, fn, cb) {
     cb = GROUP(cb, () => {
       opts.advice || (opts.advice = 'NORMAL');
       fs.open(path, opts.flag, (e, fd) => {
@@ -510,7 +515,7 @@ exports.createFileSystem = function (volume, opts, cb) {
   }
 
   fs.stat = fs.lstat = function (path, cb) {
-    _fdOperation(path, { 'flag': 'r' }, (fd, cb) => {
+    _fdOperation(path, { flag: 'r' }, (fd, cb) => {
       fs.fstat(fd, cb, '_nested_');
     }, cb);
   };
@@ -567,13 +572,13 @@ exports.createFileSystem = function (volume, opts, cb) {
   };
 
   fs.truncate = function (path, len, cb) {
-    _fdOperation(path, { 'flag': 'r+' }, (fd, cb) => {
+    _fdOperation(path, { flag: 'r+' }, (fd, cb) => {
       fs.ftruncate(fd, len, cb, '_nested_');
     }, cb);
   };
 
   fs.readdir = function (path, cb) {
-    _fdOperation(path, { 'flag': '\\r' }, (fd, cb) => {
+    _fdOperation(path, { flag: '\\r' }, (fd, cb) => {
       fs._readdir(fd, cb, '_nested_');
     }, cb);
   };
@@ -583,25 +588,25 @@ exports.createFileSystem = function (volume, opts, cb) {
       cb = mode;
       mode = 0o777;
     }
-    _fdOperation(path, { 'flag': '\\wx' }, (fd, cb) => {
+    _fdOperation(path, { flag: '\\wx' }, (fd, cb) => {
       fs._mkdir(fd, cb, '_nested_');
     }, cb);
   };
 
   fs.utimes = function (path, atime, mtime, cb) {
-    _fdOperation(path, { 'flag': 'r+' }, (fd, cb) => {
+    _fdOperation(path, { flag: 'r+' }, (fd, cb) => {
       fs.futimes(fd, atime, mtime, cb, '_nested_');
     }, cb);
   };
 
   fs.chmod = fs.lchmod = function (path, mode, cb) {
-    _fdOperation(path, { 'flag': '\\r+' }, (fd, cb) => {
+    _fdOperation(path, { flag: '\\r+' }, (fd, cb) => {
       fs.fchmod(fd, mode, cb, '_nested_');
     }, cb);
   };
 
   fs.chown = fs.lchown = function (path, uid, gid, cb) {
-    _fdOperation(path, { 'flag': '\\r+' }, (fd, cb) => {
+    _fdOperation(path, { flag: '\\r+' }, (fd, cb) => {
       fs.fchown(fd, uid, gid, cb, '_nested_');
     }, cb);
   };
@@ -623,7 +628,7 @@ exports.createFileSystem = function (volume, opts, cb) {
   };
 
   fs.readlink = function (path, cb) {
-    _fdOperation(path, { 'flag': '\\r' }, (fd, cb) => {
+    _fdOperation(path, { flag: '\\r' }, (fd, cb) => {
       // the named file is *never* a symbolic link…
       // NOTE: we still use _fdOperation for catching e.g. NOENT/NOTDIR errors…
       cb(S.err.INVAL());
@@ -637,7 +642,7 @@ exports.createFileSystem = function (volume, opts, cb) {
     }
     if (cache) _.delayedCall(cb, S.err.NOSYS()); // TODO: what would be involved here?
     else {
-      _fdOperation(path, { 'flag': '\\r' }, (fd, cb) => {
+      _fdOperation(path, { flag: '\\r' }, (fd, cb) => {
         cb(null, _.absolutePath(path));
       }, cb);
     }

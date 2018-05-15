@@ -23,7 +23,7 @@ const interfaces = require('./interfaces');
 
 timers.scheduleTask5s(() => interfaces.forEach(ip4fragments.tick));
 
-function handleReceive (intf, u8, headerOffset) {
+function handleReceive(intf, u8, headerOffset) {
   const headerLength = ip4header.getHeaderLength(u8, headerOffset);
   const protocolId = ip4header.getProtocolId(u8, headerOffset);
   const srcIP = ip4header.getSrcIP(u8, headerOffset);

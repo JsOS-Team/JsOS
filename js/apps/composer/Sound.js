@@ -10,14 +10,14 @@ const Notes = require('./Notes');
 const { info, error, success } = $$.logger;
 
 class Sound {
-  constructor (notelist) {
+  constructor(notelist) {
     this.play = this.play.bind(this);
 
     this.sound = notelist.split(' ');
     this.tick_duration = 50;
   }
 
-  play (res) {
+  play(res) {
     let position = 0;
 
     const tick = () => {
@@ -48,13 +48,13 @@ class Sound {
     tick();
   }
 
-  stop () {} // TODO:
+  stop() {} // TODO:
 
-  save () {} // TODO:
+  save() {} // TODO:
 
-  load () {} // TODO:
+  load() {} // TODO:
 
-  static compress () {}
+  static compress() {}
 }
 
 module.exports = Sound;

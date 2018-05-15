@@ -24,14 +24,14 @@ const OPTIONS_OFFSET = 28 + 16 + 192;
 const magicCookie = 0x63825363;
 
 exports.packetType = {
-  'DISCOVER': 1,
-  'OFFER':    2,
-  'REQUEST':  3,
-  'DECLINE':  4,
-  'ACK':      5,
-  'NAK':      6,
-  'RELEASE':  7,
-  'INFORM':   8,
+  DISCOVER: 1,
+  OFFER: 2,
+  REQUEST: 3,
+  DECLINE: 4,
+  ACK: 5,
+  NAK: 6,
+  RELEASE: 7,
+  INFORM: 8,
 };
 
 exports.create = (type, srcMAC, options = []) => {
@@ -83,11 +83,11 @@ exports.create = (type, srcMAC, options = []) => {
   return u8;
 };
 
-exports.getOperation = (u8) => u8[0];
-exports.getRequestId = (u8) => u8view.getUint32BE(u8, 4);
-exports.getYourIP = (u8) => new IP4Address(u8[16], u8[17], u8[18], u8[19]);
-exports.getServerIP = (u8) => new IP4Address(u8[20], u8[21], u8[22], u8[23]);
-exports.isValidMagicCookie = (u8) => magicCookie === u8view.getUint32BE(u8, OPTIONS_OFFSET);
+exports.getOperation = u8 => u8[0];
+exports.getRequestId = u8 => u8view.getUint32BE(u8, 4);
+exports.getYourIP = u8 => new IP4Address(u8[16], u8[17], u8[18], u8[19]);
+exports.getServerIP = u8 => new IP4Address(u8[20], u8[21], u8[22], u8[23]);
+exports.isValidMagicCookie = u8 => magicCookie === u8view.getUint32BE(u8, OPTIONS_OFFSET);
 
 exports.getOptions = (u8) => {
   const options = [];
@@ -110,7 +110,7 @@ exports.getOptions = (u8) => {
     }
 
     options.push({
-      'id': optId,
+      id: optId,
       bytes,
     });
 

@@ -24,8 +24,10 @@ module.exports = (intf, operation, srcMAC, srcIP, targetMAC, targetIP) => {
   const len = arpOffset + arpHeader.headerLength;
   const u8 = new Uint8Array(len);
 
-  ethernet.write(u8, ethOffset, MACAddress.BROADCAST,
-    intf.macAddr, ethernet.ETHERTYPE_ARP);
+  ethernet.write(
+    u8, ethOffset, MACAddress.BROADCAST,
+    intf.macAddr, ethernet.ETHERTYPE_ARP,
+  );
   arpHeader.write(u8, arpOffset, operation, srcMAC, srcIP, targetMAC, targetIP);
   intf.sendRaw(u8);
 };
